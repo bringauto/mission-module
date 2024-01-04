@@ -1,6 +1,6 @@
 #pragma once
 
-#include <modules/MissionModule.pb.h>
+#include <MissionModule.pb.h>
 #include <memory_management.h>
 
 namespace bringauto::protobuf {

@@ -1,4 +1,4 @@
-#include <modules/MissionModule.pb.h>
+#include <MissionModule.pb.h>
 #include <module_manager.h>
 
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
