@@ -186,25 +186,10 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     auto api_client_ptr = std::make_shared<api::ApiClient>();
     api_client_ptr->setConfiguration(api_config_ptr);
     api::DeviceApi device_api(api_client_ptr);
-    
-    boost::optional<bool> all_available;
-    boost::optional<int64_t> since;
-    boost::optional<bool> wait;
-    
-    if (con->last_command_timestamp) {
-        all_available = boost::none;
-        since = con->last_command_timestamp + 1;
-        wait = true;
-    } else {
-        all_available = true;
-        since = boost::none;
-        wait = boost::none;
-    }
-    
     std::vector<std::shared_ptr<model::Message>> commands;
     
     try {
-        auto commands_request = device_api.listCommands(con->company_name, con->car_name, all_available, since, wait);
+        auto commands_request = device_api.listCommands(con->company_name, con->car_name, false, con->last_command_timestamp + 1, true);
         commands = commands_request.get();
     } catch (std::exception& e) {
         return TIMEOUT_OCCURRED;
