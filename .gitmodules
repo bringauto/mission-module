@@ -3,7 +3,7 @@
 	url = https://github.com/bringauto/fleet-protocol.git
 [submodule "lib/fleet-v2-http-client"]
 	path = lib/fleet-v2-http-client
-	url = ssh://git@gitlab.bringauto.com:1999/bring-auto/fleet-protocol-v2/http-api/fleet-v2-http-client.git
+	url = https://github.com/bringauto/fleet-http-client.git
 [submodule "lib/fleet-protocol-cxx"]
 	path = lib/fleet-protocol-cxx
-	url = ssh://git@gitlab.bringauto.com:1999/bring-auto/fleet-protocol-v2/fleet-protocol-cxx.git
+	url = https://github.com/bringauto/fleet-protocol-cpp.git
