@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iostream>
 #include <condition_variable>
+#include <regex>
 
 
 using namespace org::openapitools::client;
@@ -24,15 +25,27 @@ void *init(const config config_data) {
 
     for (auto i = config.cbegin(); i != config.cend(); i++) {
         if (i->first == "api_url") {
+            if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
+                throw std::runtime_error("Invalid api url provided in mission module config");
+            }
             context->api_url = i->second;
         }
         else if (i->first == "api_key") {
+            if (i->second.empty()) {
+                throw std::runtime_error("Invalid api key provided in mission module config");
+            }
             context->api_key = i->second;
         }
         else if (i->first == "company_name") {
+            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
+                throw std::runtime_error("Invalid company name provided in mission module config");
+            }
             context->company_name = i->second;
         }
         else if (i->first == "car_name") {
+            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
+                throw std::runtime_error("Invalid car name provided in mission module config");
+            }
             context->car_name = i->second;
         }
     }
