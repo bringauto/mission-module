@@ -26,25 +26,29 @@ void *init(const config config_data) {
     for (auto i = config.cbegin(); i != config.cend(); i++) {
         if (i->first == "api_url") {
             if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
-                throw std::runtime_error("Invalid api url provided in mission module config");
+                delete context;
+                return nullptr;
             }
             context->api_url = i->second;
         }
         else if (i->first == "api_key") {
             if (i->second.empty()) {
-                throw std::runtime_error("Invalid api key provided in mission module config");
+                delete context;
+                return nullptr;
             }
             context->api_key = i->second;
         }
         else if (i->first == "company_name") {
             if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
-                throw std::runtime_error("Invalid company name provided in mission module config");
+                delete context;
+                return nullptr;
             }
             context->company_name = i->second;
         }
         else if (i->first == "car_name") {
             if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
-                throw std::runtime_error("Invalid car name provided in mission module config");
+                delete context;
+                return nullptr;
             }
             context->car_name = i->second;
         }
