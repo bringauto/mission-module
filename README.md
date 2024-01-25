@@ -39,6 +39,8 @@ Some configuration is required when running this module. Example config:
 
 ### Build
 
+```
 mkdir _build && cd _build
 cmake -DCPPREST_ROOT=/usr -DCMAKE_CXX_FLAGS="-I/usr/local/opt/openssl/include" -DCMAKE_MODULE_LINKER_FLAGS="-L/usr/local/opt/openssl/lib" ..
 make
+```

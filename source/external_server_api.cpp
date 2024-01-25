@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iostream>
 #include <condition_variable>
+#include <regex>
 
 
 using namespace org::openapitools::client;
@@ -24,15 +25,31 @@ void *init(const config config_data) {
 
     for (auto i = config.cbegin(); i != config.cend(); i++) {
         if (i->first == "api_url") {
+            if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
+                delete context;
+                return nullptr;
+            }
             context->api_url = i->second;
         }
         else if (i->first == "api_key") {
+            if (i->second.empty()) {
+                delete context;
+                return nullptr;
+            }
             context->api_key = i->second;
         }
         else if (i->first == "company_name") {
+            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
+                delete context;
+                return nullptr;
+            }
             context->company_name = i->second;
         }
         else if (i->first == "car_name") {
+            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
+                delete context;
+                return nullptr;
+            }
             context->car_name = i->second;
         }
     }
