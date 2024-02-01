@@ -3,10 +3,10 @@
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
 #include <bringauto/protobuf/ProtobufHelper.hpp>
-#include <CppRestOpenAPIClient/api/DeviceApi.h>
 #include <bringauto/fleet_protocol/cxx/DeviceID.hpp>
 #include <bringauto/fleet_protocol/cxx/KeyValueConfig.hpp>
 #include <bringauto/fleet_protocol/cxx/StringAsBuffer.hpp>
+#include <bringauto/fleet_protocol/http_client/FleetApiClient.hpp>
 #include <google/protobuf/util/json_util.h>
  
 #include <vector>
@@ -22,6 +22,14 @@ namespace bamm = bringauto::modules::mission_module;
 void *init(const config config_data) {
     auto *context = new struct bamm::context;
     bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
+    std::string api_url;
+    std::string api_key;
+    std::string company_name;
+    std::string car_name;
+    int max_requests_threshold_count;
+    int max_requests_threshold_period_ms;
+    int delay_after_threshold_reached_ms;
+    int retry_requests_delay_ms;
 
     for (auto i = config.cbegin(); i != config.cend(); i++) {
         if (i->first == "api_url") {
@@ -29,30 +37,80 @@ void *init(const config config_data) {
                 delete context;
                 return nullptr;
             }
-            context->api_url = i->second;
+            api_url = i->second;
         }
         else if (i->first == "api_key") {
             if (i->second.empty()) {
                 delete context;
                 return nullptr;
             }
-            context->api_key = i->second;
+            api_key = i->second;
         }
         else if (i->first == "company_name") {
             if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
-            context->company_name = i->second;
+            company_name = i->second;
         }
         else if (i->first == "car_name") {
             if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
-            context->car_name = i->second;
+            car_name = i->second;
+        }
+        else if (i->first == "max_requests_threshold_count") {
+            try {
+                max_requests_threshold_count = std::stoi(i->second);
+                if (max_requests_threshold_count < 0 || i->second.empty()) {
+                    throw std::exception();
+                }
+            } catch (std::exception& e) {
+                delete context;
+                return nullptr;
+            }
+        }
+        else if (i->first == "max_requests_threshold_period_ms") {
+            try {
+                max_requests_threshold_period_ms = std::stoi(i->second);
+                if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
+                    throw std::exception();
+                }
+            } catch (std::exception& e) {
+                delete context;
+                return nullptr;
+            }
+        }
+        else if (i->first == "delay_after_threshold_reached_ms") {
+            try {
+                delay_after_threshold_reached_ms = std::stoi(i->second);
+                if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
+                    throw std::exception();
+                }
+            } catch (std::exception& e) {
+                delete context;
+                return nullptr;
+            }
+        }
+        else if (i->first == "retry_requests_delay_ms") {
+            try {
+                retry_requests_delay_ms = std::stoi(i->second);
+                if (retry_requests_delay_ms < 0 || i->second.empty()) {
+                    throw std::exception();
+                }
+            } catch (std::exception& e) {
+                delete context;
+                return nullptr;
+            }
         }
     }
+
+    context->fleet_api_client = std::make_shared<bringauto::fleet_protocol::http_client::FleetApiClient>(
+        api_url, api_key, company_name, car_name,
+        max_requests_threshold_count, max_requests_threshold_period_ms,
+        delay_after_threshold_reached_ms, retry_requests_delay_ms
+    );
 
     context->last_command_timestamp = 0;
     return context;
@@ -78,44 +136,21 @@ int forward_status(const buffer device_status, const device_identification devic
     std::unique_lock lock(con->mutex);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
-        auto api_config_ptr = std::make_shared<api::ApiConfiguration>();
-        api_config_ptr->setBaseUrl(con->api_url);
-        api_config_ptr->setApiKey("api_key", con->api_key);
-        auto api_client_ptr = std::make_shared<api::ApiClient>();
-        
-        api_client_ptr->setConfiguration(api_config_ptr);
-        api::DeviceApi device_api(api_client_ptr);
-        
-        auto status_ptr = std::make_shared<model::Message>();
-        status_ptr->setTimestamp(utility::datetime::utc_timestamp());
-        
-        auto device_id_ptr = std::make_shared<model::DeviceId>();
-        device_id_ptr->setModuleId(device.module);
-        device_id_ptr->setType(device.device_type);
-        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
-        device_id_ptr->setRole(std::string(device_role.getStringView()));
-        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
-        device_id_ptr->setName(std::string(device_name.getStringView()));
-        status_ptr->setDeviceId(device_id_ptr);
-        
-        auto payload_ptr = std::make_shared<model::Payload>();
-        payload_ptr->setMessageType("STATUS");
-        payload_ptr->setEncoding("JSON");
-        auto payload_data_ptr = std::make_shared<model::Payload_data>();
         std::string device_status_str;
         auto device_status_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyStatus(device_status);
         google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str);
-        auto payload_data_json = web::json::value::parse(device_status_str);
-        payload_data_ptr->setJson(payload_data_json);
-        payload_ptr->setData(payload_data_ptr);
-        status_ptr->setPayload(payload_ptr);
         
-        std::vector<std::shared_ptr<model::Message>> statuses;
-        statuses.push_back(status_ptr);
+        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+        con->fleet_api_client->setDeviceIdentification(
+            device.module,
+            device.device_type,
+            std::string(device_role.getStringView()),
+            std::string(device_name.getStringView())
+        );
 
         try {
-            auto task = device_api.sendStatuses(con->company_name, con->car_name, statuses);
-            task.wait();
+            con->fleet_api_client->sendStatus(device_status_str);
         } catch (std::exception& e) {
             return NOT_OK;
         }
@@ -196,18 +231,10 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
     auto con = static_cast<struct bamm::context *> (context);
     std::unique_lock lock(con->mutex);
-    
-    auto api_config_ptr = std::make_shared<api::ApiConfiguration>();
-    api_config_ptr->setBaseUrl(con->api_url);
-    api_config_ptr->setApiKey("api_key", con->api_key);
-    auto api_client_ptr = std::make_shared<api::ApiClient>();
-    api_client_ptr->setConfiguration(api_config_ptr);
-    api::DeviceApi device_api(api_client_ptr);
     std::vector<std::shared_ptr<model::Message>> commands;
     
     try {
-        auto commands_request = device_api.listCommands(con->company_name, con->car_name, false, con->last_command_timestamp + 1, true);
-        commands = commands_request.get();
+        commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
     } catch (std::exception& e) {
         return TIMEOUT_OCCURRED;
     }
