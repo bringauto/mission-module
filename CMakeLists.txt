@@ -28,7 +28,7 @@ ADD_SUBDIRECTORY("lib/fleet-protocol-cxx")
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
-FIND_PACKAGE(Protobuf 3.21.12)
+FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
 ADD_LIBRARY(protobuf_mission_lib STATIC ${protobuf_mission_cpp_files})
 TARGET_INCLUDE_DIRECTORIES(protobuf_mission_lib PUBLIC "lib/protobuf-mission-module/")
@@ -41,7 +41,6 @@ TARGET_INCLUDE_DIRECTORIES(mission_module_hpp INTERFACE "include/")
 TARGET_LINK_LIBRARIES(mission_module_hpp INTERFACE protobuf_mission_lib)
 
 FILE(GLOB_RECURSE SOURCES "source/*")
-FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 
 ADD_LIBRARY(mission_module_sources STATIC ${SOURCES})
 SET_PROPERTY(TARGET mission_module_sources PROPERTY POSITION_INDEPENDENT_CODE ON)
