@@ -12,15 +12,24 @@ SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 SET(MISSION_MODULE_VERSION 1.0.0)
 
+OPTION(BRINGAUTO_SYSTEM_DEP "Enable system dependencies" OFF)
+
 FIND_PACKAGE(CMLIB
-        COMPONENTS CMDEF CMUTIL
+        COMPONENTS CMDEF CMUTIL STORAGE
         REQUIRED
 )
+IF (NOT BRINGAUTO_SYSTEM_DEP)
+    INCLUDE("cmake/Dependencies.cmake")
+ENDIF ()
+
 
 FIND_PACKAGE(CPPRESTSDK REQUIRED)
 
-IF (NOT TARGET common_headers)
-    ADD_SUBDIRECTORY("lib/fleet-protocol")
+FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
+
+IF (NOT TARGET fleet-protocol::common_headers)
+    FIND_PACKAGE(fleet-protocol REQUIRED)
+    MESSAGE("found package") # TODO remove
 ENDIF()
 ADD_SUBDIRECTORY("lib/fleet-v2-http-client")
 ADD_SUBDIRECTORY("lib/fleet-protocol-cxx")
@@ -28,7 +37,6 @@ ADD_SUBDIRECTORY("lib/fleet-protocol-cxx")
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
-FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
 ADD_LIBRARY(protobuf_mission_lib STATIC ${protobuf_mission_cpp_files})
 TARGET_INCLUDE_DIRECTORIES(protobuf_mission_lib PUBLIC "lib/protobuf-mission-module/")
@@ -49,9 +57,9 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC mission_module_hpp module_ga
 
 
 ADD_LIBRARY(mission_module_gateway SHARED "source/module_manager.cpp" "source/device_management.cpp" "source/memory_management.cpp")
-TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE mission_module_hpp mission_module_sources external_server common_headers
+TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE mission_module_hpp mission_module_sources external_server fleet-protocol::common_headers
         module_gateway_maintainer)
 
 ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "source/device_management.cpp")
-TARGET_LINK_LIBRARIES(mission_external_server PRIVATE mission_module_hpp mission_module_sources external_server common_headers
+TARGET_LINK_LIBRARIES(mission_external_server PRIVATE mission_module_hpp mission_module_sources external_server fleet-protocol::common_headers
         module_gateway_maintainer fleet-protocol::cxx_helpers CppRestOpenAPIClient fleet-protocol::protobuf_cpp)
