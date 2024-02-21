@@ -29,14 +29,14 @@ FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 
 get_property(importTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 
-FIND_PACKAGE(fleet-protocol REQUIRED )
+FIND_PACKAGE(fleet-protocol-interface REQUIRED )
 get_property(importTargetsAfter DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 list(REMOVE_ITEM importTargetsAfter ${importTargets})   # Remove those imported before
-message("${importTargetsAfter}")
+message("After ${importTargetsAfter}")
 
 message("Fleet Protocol Targets:")
-get_target_property(target1 fleet-protocol::common_headers INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(target2 fleet-protocol::internal_client_interface INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(target1 common-headers-interface INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(target2 internal-client-interface INTERFACE_INCLUDE_DIRECTORIES)
 # Add more targets as needed
 message("   ${target1}")
 message("   ${target2}")
@@ -62,14 +62,14 @@ FILE(GLOB_RECURSE SOURCES "source/*")
 
 ADD_LIBRARY(mission_module_sources STATIC ${SOURCES})
 SET_PROPERTY(TARGET mission_module_sources PROPERTY POSITION_INDEPENDENT_CODE ON)
-TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC mission_module_hpp module_gateway_maintainer external_server protobuf_mission_lib
-        fleet-protocol::protobuf_cpp fleet-protocol::cxx_helpers CppRestOpenAPIClient)
+TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC mission_module_hpp module-maintainer-module-gateway-interface module-maintainer-external-server-interface protobuf_mission_lib
+        protobuf-cpp-interface fleet-protocol::cxx_helpers CppRestOpenAPIClient)
 
 
 ADD_LIBRARY(mission_module_gateway SHARED "source/module_manager.cpp" "source/device_management.cpp" "source/memory_management.cpp")
-TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE mission_module_hpp mission_module_sources external_server fleet-protocol::common_headers
-        module_gateway_maintainer)
+TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE mission_module_hpp mission_module_sources module-maintainer-external-server-interface common-headers-interface
+        module-maintainer-module-gateway-interface)
 
 ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "source/device_management.cpp")
-TARGET_LINK_LIBRARIES(mission_external_server PRIVATE mission_module_hpp mission_module_sources external_server fleet-protocol::common_headers
-        module_gateway_maintainer fleet-protocol::cxx_helpers CppRestOpenAPIClient fleet-protocol::protobuf_cpp)
+TARGET_LINK_LIBRARIES(mission_external_server PRIVATE mission_module_hpp mission_module_sources module-maintainer-external-server-interface common-headers-interface
+        module-maintainer-module-gateway-interface fleet-protocol::cxx_helpers CppRestOpenAPIClient protobuf-cpp-interface)
