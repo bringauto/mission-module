@@ -27,19 +27,7 @@ FIND_PACKAGE(CPPRESTSDK REQUIRED)
 
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 
-#get_property(importTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
-
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
-#get_property(importTargetsAfter DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
-#list(REMOVE_ITEM importTargetsAfter ${importTargets})   # Remove those imported before
-#message("After ${importTargetsAfter}")
-
-#message("Fleet Protocol Targets:")
-#get_target_property(target1 common-headers-interface INTERFACE_INCLUDE_DIRECTORIES)
-#get_target_property(target2 internal-client-interface INTERFACE_INCLUDE_DIRECTORIES)
-## Add more targets as needed
-#message("   ${target1}")
-#message("   ${target2}")
 
 ADD_SUBDIRECTORY("lib/fleet-v2-http-client")
 ADD_SUBDIRECTORY("lib/fleet-protocol-cxx")
