@@ -1,5 +1,5 @@
 #include <MissionModule.pb.h>
-#include <module_manager.h>
+#include <fleet_protocol/module_maintainer/module_gateway/module_manager.h>
 
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
 #include <bringauto/protobuf/ProtobufHelper.hpp>

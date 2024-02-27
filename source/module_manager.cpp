@@ -1,4 +1,4 @@
-#include <module_manager.h>
+#include <fleet_protocol/module_maintainer/module_gateway/module_manager.h>
 #include <device_management.h>
 
 #include <bringauto/modules/mission_module/MissionModule.hpp>

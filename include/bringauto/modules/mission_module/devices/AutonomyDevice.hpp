@@ -1,7 +1,7 @@
 #pragma once
 
 #include <MissionModule.pb.h>
-#include <memory_management.h>
+#include <fleet_protocol/common_headers/memory_management.h>
 
 namespace bringauto::modules::mission_module::devices {
 class AutonomyDevice {
