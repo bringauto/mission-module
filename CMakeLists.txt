@@ -44,7 +44,7 @@ FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 ADD_LIBRARY(mission_module_sources STATIC ${SOURCES})
 SET_PROPERTY(TARGET mission_module_sources PROPERTY POSITION_INDEPENDENT_CODE ON)
 TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC mission_module_hpp module_gateway_maintainer external_server protobuf_mission_lib
-        fleet-protocol::protobuf_cpp fleet-protocol::cxx_helpers fleet_http_client)
+        fleet-protocol::protobuf_cpp fleet-protocol::cxx_helpers fleet-http-client-shared)
 
 
 ADD_LIBRARY(mission_module_gateway SHARED "source/module_manager.cpp" "source/device_management.cpp" "source/memory_management.cpp")
@@ -53,4 +53,4 @@ TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE mission_module_hpp mission_
 
 ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "source/device_management.cpp")
 TARGET_LINK_LIBRARIES(mission_external_server PRIVATE mission_module_hpp mission_module_sources external_server common_headers
-        module_gateway_maintainer fleet-protocol::cxx_helpers fleet_http_client fleet-protocol::protobuf_cpp)
+        module_gateway_maintainer fleet-protocol::cxx_helpers fleet-http-client-shared fleet-protocol::protobuf_cpp)
