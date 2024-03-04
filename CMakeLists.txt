@@ -25,9 +25,9 @@ ENDIF ()
 FIND_PACKAGE(CPPRESTSDK REQUIRED)
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
+FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.0 REQUIRED)
 
 ADD_SUBDIRECTORY("lib/fleet-v2-http-client")
-ADD_SUBDIRECTORY("lib/fleet-protocol-cxx")
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
@@ -49,7 +49,7 @@ SET_PROPERTY(TARGET mission_module_sources PROPERTY POSITION_INDEPENDENT_CODE ON
 TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         mission_module_hpp
         fleet-protocol-interface::common-headers-interface
-        fleet-protocol::cxx-helpers
+        fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
         protobuf_mission_lib
 )
 
