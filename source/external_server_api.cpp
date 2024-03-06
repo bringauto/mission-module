@@ -1,4 +1,4 @@
-#include <external_server_interface.h>
+#include <fleet_protocol/module_maintainer/external_server/external_server_interface.h>
 #include <bringauto/modules/mission_module/external_server_api_structures.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
@@ -149,10 +149,13 @@ int forward_status(const buffer device_status, const device_identification devic
         bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
         bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
-            device.module,
-            device.device_type,
-            std::string(device_role.getStringView()),
-            std::string(device_name.getStringView())
+            bringauto::fleet_protocol::cxx::DeviceID(
+                device.module,
+                device.device_type,
+                0, //priority
+                std::string(device_role.getStringView()),
+                std::string(device_name.getStringView())
+            )
         );
 
         try {
