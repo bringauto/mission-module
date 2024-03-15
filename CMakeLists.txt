@@ -25,7 +25,7 @@ ENDIF ()
 FIND_PACKAGE(CPPRESTSDK REQUIRED)
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
-FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.0 REQUIRED)
+FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 
 ADD_SUBDIRECTORY("lib/fleet-v2-http-client")
 
@@ -63,5 +63,5 @@ ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "sou
 TARGET_LINK_LIBRARIES(mission_external_server PRIVATE
         mission_module_sources
         fleet-protocol-interface::module-maintainer-external-server-interface
-        CppRestOpenAPIClient
+        fleet-http-client-static
 )
