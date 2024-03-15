@@ -107,11 +107,17 @@ void *init(const config config_data) {
     }
 
     bringauto::fleet_protocol::http_client::FleetApiClient::FleetApiClientConfig fleet_api_config {
-        api_url, api_key, company_name, car_name
+        .apiUrl = api_url,
+        .apiKey = api_key,
+        .companyName = company_name,
+        .carName = car_name
     };
 
     bringauto::fleet_protocol::http_client::RequestFrequencyGuard::RequestFrequencyGuardConfig request_frequency_guard_config {
-        max_requests_threshold_count, max_requests_threshold_period_ms, delay_after_threshold_reached_ms, retry_requests_delay_ms
+        .maxRequestsThresholdCount = max_requests_threshold_count,
+        .maxRequestsThresholdPeriodMs = std::chrono::milliseconds(max_requests_threshold_period_ms),
+        .delayAfterThresholdReachedMs = std::chrono::milliseconds(delay_after_threshold_reached_ms),
+        .retryRequestsDelayMs = std::chrono::milliseconds(retry_requests_delay_ms)
     };
 
     context->fleet_api_client = std::make_shared<bringauto::fleet_protocol::http_client::FleetApiClient>(

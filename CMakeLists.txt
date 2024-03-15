@@ -63,5 +63,5 @@ ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "sou
 TARGET_LINK_LIBRARIES(mission_external_server PRIVATE
         mission_module_sources
         fleet-protocol-interface::module-maintainer-external-server-interface
-        CppRestOpenAPIClient
+        fleet-http-client-static
 )
