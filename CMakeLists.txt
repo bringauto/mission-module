@@ -12,24 +12,25 @@ SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 SET(MISSION_MODULE_VERSION 1.0.0)
 
+OPTION(BRINGAUTO_SYSTEM_DEP "Enable system dependencies" OFF)
+
 FIND_PACKAGE(CMLIB
         COMPONENTS CMDEF CMUTIL STORAGE
         REQUIRED
 )
+IF (NOT BRINGAUTO_SYSTEM_DEP)
+    INCLUDE("cmake/Dependencies.cmake")
+ENDIF ()
 
-IF(NOT BRINGAUTO_SYSTEM_DEP)
-    INCLUDE(cmake/Dependencies.cmake)
-ENDIF()
-
+FIND_PACKAGE(CPPRESTSDK REQUIRED)
+FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
-FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
+FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.0 REQUIRED)
 
 ADD_SUBDIRECTORY("lib/fleet-v2-http-client")
 
-
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
-FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
 ADD_LIBRARY(protobuf_mission_lib STATIC ${protobuf_mission_cpp_files})
 TARGET_INCLUDE_DIRECTORIES(protobuf_mission_lib PUBLIC "lib/protobuf-mission-module/")
@@ -41,35 +42,26 @@ ADD_LIBRARY(mission_module_hpp INTERFACE ${HEADERS})
 TARGET_INCLUDE_DIRECTORIES(mission_module_hpp INTERFACE "include/")
 TARGET_LINK_LIBRARIES(mission_module_hpp INTERFACE protobuf_mission_lib)
 
-FILE(GLOB_RECURSE SOURCES "source/*")
+FILE(GLOB_RECURSE SOURCES "source/bringauto/*")
 
 ADD_LIBRARY(mission_module_sources STATIC ${SOURCES})
 SET_PROPERTY(TARGET mission_module_sources PROPERTY POSITION_INDEPENDENT_CODE ON)
 TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
-                        mission_module_hpp
-                        fleet-protocol-interface::module-maintainer-module-gateway-interface
-                        fleet-protocol-interface::module-maintainer-external-server-interface
-                        protobuf_mission_lib
-                        fleet-protocol-interface::protobuf-cpp-interface
-                        fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
-                        fleet-http-client-static)
-
+        mission_module_hpp
+        fleet-protocol-interface::common-headers-interface
+        fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
+        protobuf_mission_lib
+)
 
 ADD_LIBRARY(mission_module_gateway SHARED "source/module_manager.cpp" "source/device_management.cpp" "source/memory_management.cpp")
 TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE
-                        mission_module_hpp
-                        mission_module_sources
-                        fleet-protocol-interface::module-maintainer-external-server-interface
-                        fleet-protocol-interface::common-headers-interface
-                        fleet-protocol-interface::module-maintainer-module-gateway-interface)
+        mission_module_sources
+        fleet-protocol-interface::module-maintainer-module-gateway-interface
+)
 
-ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "source/device_management.cpp")
+ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "source/device_management.cpp" "source/memory_management.cpp")
 TARGET_LINK_LIBRARIES(mission_external_server PRIVATE
-                        mission_module_hpp
-                        mission_module_sources
-                        fleet-protocol-interface::module-maintainer-external-server-interface
-                        fleet-protocol-interface::common-headers-interface
-                        fleet-protocol-interface::module-maintainer-module-gateway-interface
-                        fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
-                        fleet-http-client-static
-                        fleet-protocol-interface::protobuf-cpp-interface)
+        mission_module_sources
+        fleet-protocol-interface::module-maintainer-external-server-interface
+        CppRestOpenAPIClient
+)

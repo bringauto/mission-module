@@ -1,5 +1,5 @@
-#include <fleet_protocol/common_headers/device_management.h>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
+#include <fleet_protocol/common_headers/device_management.h>
 #include <fleet_protocol/common_headers/general_error_codes.h>
 
 int get_module_number() {return bringauto::modules::mission_module::MISSION_MODULE_NUMBER;}
