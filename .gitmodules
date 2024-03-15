@@ -1,9 +1,3 @@
-[submodule "lib/fleet-protocol"]
-	path = lib/fleet-protocol
-	url = https://github.com/bringauto/fleet-protocol.git
 [submodule "lib/fleet-v2-http-client"]
 	path = lib/fleet-v2-http-client
 	url = https://github.com/bringauto/fleet-http-client.git
-[submodule "lib/fleet-protocol-cxx"]
-	path = lib/fleet-protocol-cxx
-	url = https://github.com/bringauto/fleet-protocol-cpp.git
