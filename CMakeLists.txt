@@ -10,7 +10,15 @@ INCLUDE(CheckPIESupported)
 CHECK_PIE_SUPPORTED()
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-SET(MISSION_MODULE_VERSION 1.0.0)
+IF (BRINGAUTO_PACKAGE AND NOT BRINGAUTO_INSTALL)
+    SET(BRINGAUTO_INSTALL ON
+            CACHE BOOL
+            "Installation forced by BRINGAUTO_PACKAGE creation"
+            FORCE
+    )
+ENDIF ()
+
+SET(MISSION_MODULE_VERSION 1.2.0)
 
 OPTION(BRINGAUTO_SYSTEM_DEP "Enable system dependencies" OFF)
 
@@ -53,15 +61,60 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         protobuf_mission_lib
 )
 
-ADD_LIBRARY(mission_module_gateway SHARED "source/module_manager.cpp" "source/device_management.cpp" "source/memory_management.cpp")
-TARGET_LINK_LIBRARIES(mission_module_gateway PRIVATE
+CMDEF_ADD_LIBRARY(
+        LIBRARY_GROUP mission-module-gateway
+        TYPE SHARED
+        SOURCES "source/module_manager.cpp" "source/memory_management.cpp" "source/device_management.cpp"
+        VERSION ${MISSION_MODULE_VERSION}
+)
+TARGET_LINK_LIBRARIES(mission-module-gateway-shared PRIVATE
         mission_module_sources
         fleet-protocol-interface::module-maintainer-module-gateway-interface
 )
 
-ADD_LIBRARY(mission_external_server SHARED "source/external_server_api.cpp" "source/device_management.cpp" "source/memory_management.cpp")
-TARGET_LINK_LIBRARIES(mission_external_server PRIVATE
+CMDEF_ADD_LIBRARY(
+        LIBRARY_GROUP mission-external-server
+        TYPE SHARED
+        SOURCES "source/external_server_api.cpp" "source/memory_management.cpp" "source/device_management.cpp"
+        VERSION ${MISSION_MODULE_VERSION}
+)
+TARGET_LINK_LIBRARIES(mission-external-server-shared PRIVATE
         mission_module_sources
         fleet-protocol-interface::module-maintainer-external-server-interface
         fleet-http-client-static
 )
+
+CMDEF_ADD_LIBRARY(
+        LIBRARY_GROUP mission-module
+        TYPE INTERFACE
+        VERSION ${MISSION_MODULE_VERSION}
+)
+TARGET_LINK_LIBRARIES(mission-module-interface INTERFACE
+        mission-module-gateway-shared
+        mission-external-server-shared
+)
+
+IF (BRINGAUTO_INSTALL)
+    CMDEF_INSTALL(
+            TARGET mission-module-gateway-shared
+            NAMESPACE mission-module-interface::
+    )
+    CMDEF_INSTALL(
+            TARGET mission-external-server-shared
+            NAMESPACE mission-module-interface::
+    )
+    CMDEF_INSTALL(
+            TARGET mission-module-interface
+            NAMESPACE mission-module-interface::
+    )
+ENDIF ()
+
+IF (BRINGAUTO_PACKAGE)
+    CMDEF_PACKAGE(
+            MAIN_TARGET mission-module-interface
+            VERSION ${MISSION_MODULE_VERSION}
+    )
+    SET(CPACK_GENERATOR ZIP)
+    SET(CPACK_PACKAGE_CONTACT "BringAuto s.r.o. <maintainers@bringauto.com>")
+    INCLUDE(CPack)
+ENDIF ()
