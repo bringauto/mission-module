@@ -10,6 +10,12 @@ INCLUDE(CheckPIESupported)
 CHECK_PIE_SUPPORTED()
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+SET(MISSION_MODULE_VERSION 1.2.0)
+
+OPTION(BRINGAUTO_INSTALL "Configure install" OFF)
+OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
+OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, packager used if OFF" OFF)
+
 IF (BRINGAUTO_PACKAGE AND NOT BRINGAUTO_INSTALL)
     SET(BRINGAUTO_INSTALL ON
             CACHE BOOL
@@ -17,10 +23,6 @@ IF (BRINGAUTO_PACKAGE AND NOT BRINGAUTO_INSTALL)
             FORCE
     )
 ENDIF ()
-
-SET(MISSION_MODULE_VERSION 1.2.0)
-
-OPTION(BRINGAUTO_SYSTEM_DEP "Enable system dependencies" OFF)
 
 FIND_PACKAGE(CMLIB
         COMPONENTS CMDEF CMUTIL STORAGE
@@ -93,7 +95,6 @@ TARGET_LINK_LIBRARIES(mission-module-interface INTERFACE
         mission-module-gateway-shared
         mission-external-server-shared
 )
-
 IF (BRINGAUTO_INSTALL)
     CMDEF_INSTALL(
             TARGET mission-module-gateway-shared
