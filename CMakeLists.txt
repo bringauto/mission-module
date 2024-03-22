@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.25 FATAL_ERROR)
 PROJECT(MissionModule CXX)
 
 SET(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
-
+SET(CMAKE_INSTALL_RPATH "$ORIGIN")
 SET(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_CXX_EXTENSIONS OFF)   # For increased portability
 
@@ -36,8 +36,8 @@ FIND_PACKAGE(CPPRESTSDK REQUIRED)
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
-
-ADD_SUBDIRECTORY("lib/fleet-v2-http-client")
+FIND_PACKAGE(fleet-http-client-shared 1.2.0 REQUIRED)
+FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
@@ -83,7 +83,8 @@ CMDEF_ADD_LIBRARY(
 TARGET_LINK_LIBRARIES(mission-external-server-shared PRIVATE
         mission_module_sources
         fleet-protocol-interface::module-maintainer-external-server-interface
-        fleet-http-client-static
+        fleet-http-client-shared::fleet-http-client-shared
+        bringauto_logger::bringauto_logger
 )
 
 CMDEF_ADD_LIBRARY(
@@ -104,10 +105,12 @@ IF (BRINGAUTO_INSTALL)
             TARGET mission-external-server-shared
             NAMESPACE mission-module-interface::
     )
+
     CMDEF_INSTALL(
             TARGET mission-module-interface
             NAMESPACE mission-module-interface::
     )
+    BA_PACKAGE_DEPS_IMPORTED(mission-module-interface)
 ENDIF ()
 
 IF (BRINGAUTO_PACKAGE)
