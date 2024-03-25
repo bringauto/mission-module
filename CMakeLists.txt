@@ -37,7 +37,6 @@ FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 FIND_PACKAGE(fleet-http-client-shared 1.2.0 REQUIRED)
-FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
@@ -84,7 +83,6 @@ TARGET_LINK_LIBRARIES(mission-external-server-shared PRIVATE
         mission_module_sources
         fleet-protocol-interface::module-maintainer-external-server-interface
         fleet-http-client-shared::fleet-http-client-shared
-        bringauto_logger::bringauto_logger
 )
 
 CMDEF_ADD_LIBRARY(
