@@ -32,11 +32,17 @@ IF (NOT BRINGAUTO_SYSTEM_DEP)
     INCLUDE("cmake/Dependencies.cmake")
 ENDIF ()
 
-FIND_PACKAGE(CPPRESTSDK REQUIRED)
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
-FIND_PACKAGE(fleet-http-client-shared 1.2.0 REQUIRED)
+FIND_PACKAGE(fleet-http-client-shared 1.2.1 REQUIRED)
+
+### fleet-http-client dependencies
+FIND_PACKAGE(Boost REQUIRED)
+FIND_PACKAGE(cpprestsdk REQUIRED)
+FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
+### fleet-http-client dependencies
+
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
@@ -68,8 +74,10 @@ CMDEF_ADD_LIBRARY(
         SOURCES "source/module_manager.cpp" "source/memory_management.cpp" "source/device_management.cpp"
         VERSION ${MISSION_MODULE_VERSION}
 )
-TARGET_LINK_LIBRARIES(mission-module-gateway-shared PRIVATE
+TARGET_LINK_LIBRARIES(mission-module-gateway-shared
+        PRIVATE
         mission_module_sources
+        PUBLIC
         fleet-protocol-interface::module-maintainer-module-gateway-interface
 )
 
@@ -79,10 +87,13 @@ CMDEF_ADD_LIBRARY(
         SOURCES "source/external_server_api.cpp" "source/memory_management.cpp" "source/device_management.cpp"
         VERSION ${MISSION_MODULE_VERSION}
 )
-TARGET_LINK_LIBRARIES(mission-external-server-shared PRIVATE
+TARGET_LINK_LIBRARIES(mission-external-server-shared
+        PRIVATE
         mission_module_sources
-        fleet-protocol-interface::module-maintainer-external-server-interface
         fleet-http-client-shared::fleet-http-client-shared
+        bringauto_logger::bringauto_logger
+        PUBLIC
+        fleet-protocol-interface::module-maintainer-external-server-interface
 )
 
 CMDEF_ADD_LIBRARY(
