@@ -24,10 +24,14 @@ Some configuration is required when running this module. Example config:
 - company_name, car_name : used to identify car in fleet http api
 - max_requests_threshold_count, max_requests_threshold_period_ms, delay_after_threshold_reached_ms, retry_requests_delay_ms : explained in [http client README](./lib/fleet-v2-http-client/README.md)
 
+### Dependencies
+
+- [CMakeLib](https://github.com/cmakelib/cmakelib)
+
 ### Build
 
 ```
 mkdir _build && cd _build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] ..
 make
 ```
