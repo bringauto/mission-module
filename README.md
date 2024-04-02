@@ -28,6 +28,6 @@ Some configuration is required when running this module. Example config:
 
 ```
 mkdir _build && cd _build
-cmake -DCMAKE_CXX_FLAGS="-I/usr/local/opt/openssl/include" -DCMAKE_MODULE_LINKER_FLAGS="-L/usr/local/opt/openssl/lib" ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
