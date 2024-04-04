@@ -2,7 +2,7 @@ SET(CMAKE_FIND_USE_CMAKE_SYSTEM_PATH FALSE)
 
 BA_PACKAGE_LIBRARY(fleet-protocol-interface             v2.0.0 PLATFORM_STRING_MODE any_machine NO_DEBUG ON)
 BA_PACKAGE_LIBRARY(fleet-protocol-cxx-helpers-static    v1.1.1)
-BA_PACKAGE_LIBRARY(fleet-http-client-shared             v1.2.1)
+BA_PACKAGE_LIBRARY(fleet-http-client-shared             v1.2.2)
 BA_PACKAGE_LIBRARY(protobuf      v4.21.12)
 BA_PACKAGE_LIBRARY(zlib          v1.2.11)
 BA_PACKAGE_LIBRARY(boost         v1.78.0)
