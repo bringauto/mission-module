@@ -262,7 +262,8 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
         auto received_device_id = command->getDeviceId();
         MissionModule::AutonomyCommand proto_command {};
-        if(!google::protobuf::util::JsonStringToMessage(command->getPayload()->getData()->getJson().serialize(), &proto_command).ok()) {
+        auto parse_status = google::protobuf::util::JsonStringToMessage(command->getPayload()->getData()->getJson().serialize(), &proto_command);
+        if(!parse_status.ok()) {
             return NOT_OK;
         }
         std::string command_str;
