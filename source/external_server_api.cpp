@@ -145,7 +145,6 @@ int forward_status(const buffer device_status, const device_identification devic
     }
     
     auto con = static_cast<struct bamm::context *> (context);
-    std::unique_lock lock(con->mutex);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         std::string device_status_str;
