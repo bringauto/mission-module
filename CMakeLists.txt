@@ -18,22 +18,28 @@ OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, pac
 OPTION(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY "Build shared library for module gateway " ON)
 OPTION(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER "Build shared library for external server " ON)
 
-IF (BRINGAUTO_PACKAGE AND NOT BRINGAUTO_INSTALL)
-    SET(BRINGAUTO_INSTALL ON
-            CACHE BOOL
-            "Installation forced by BRINGAUTO_PACKAGE creation"
-            FORCE
-    )
-    SET(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY ON
-            CACHE BOOL
-            "Module gateway forced by BRINGAUTO_PACKAGE creation"
-            FORCE
-    )
-    SET(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER ON
-            CACHE BOOL
-            "External server forced by BRINGAUTO_PACKAGE creation"
-            FORCE
-    )
+IF (BRINGAUTO_PACKAGE)
+    IF (NOT BRINGAUTO_INSTALL)
+        SET(BRINGAUTO_INSTALL ON
+                CACHE BOOL
+                "Installation forced by BRINGAUTO_PACKAGE creation"
+                FORCE
+        )
+    ENDIF ()
+    IF (NOT FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)
+        SET(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY ON
+                CACHE BOOL
+                "Module gateway module build forced by BRINGAUTO_PACKAGE creation"
+                FORCE
+        )
+    ENDIF ()
+    IF (NOT FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
+        SET(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER ON
+                CACHE BOOL
+                "External server module build forced by BRINGAUTO_PACKAGE creation"
+                FORCE
+        )
+    ENDIF ()
 ENDIF ()
 
 FIND_PACKAGE(CMLIB
