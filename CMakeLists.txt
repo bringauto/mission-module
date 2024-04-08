@@ -10,18 +10,36 @@ INCLUDE(CheckPIESupported)
 CHECK_PIE_SUPPORTED()
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-SET(MISSION_MODULE_VERSION 1.2.0)
+SET(MISSION_MODULE_VERSION 1.2.2)
 
 OPTION(BRINGAUTO_INSTALL "Configure install" OFF)
 OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
 OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, packager used if OFF" OFF)
+OPTION(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY "Build shared library for module gateway " ON)
+OPTION(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER "Build shared library for external server " ON)
 
-IF (BRINGAUTO_PACKAGE AND NOT BRINGAUTO_INSTALL)
-    SET(BRINGAUTO_INSTALL ON
-            CACHE BOOL
-            "Installation forced by BRINGAUTO_PACKAGE creation"
-            FORCE
-    )
+IF (BRINGAUTO_PACKAGE)
+    IF (NOT BRINGAUTO_INSTALL)
+        SET(BRINGAUTO_INSTALL ON
+                CACHE BOOL
+                "Installation forced by BRINGAUTO_PACKAGE creation"
+                FORCE
+        )
+    ENDIF ()
+    IF (NOT FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)
+        SET(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY ON
+                CACHE BOOL
+                "Module gateway module build forced by BRINGAUTO_PACKAGE creation"
+                FORCE
+        )
+    ENDIF ()
+    IF (NOT FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
+        SET(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER ON
+                CACHE BOOL
+                "External server module build forced by BRINGAUTO_PACKAGE creation"
+                FORCE
+        )
+    ENDIF ()
 ENDIF ()
 
 FIND_PACKAGE(CMLIB
@@ -35,14 +53,20 @@ ENDIF ()
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
-FIND_PACKAGE(fleet-http-client-shared 1.2.2 REQUIRED)
 
-### fleet-http-client dependencies
-FIND_PACKAGE(Boost REQUIRED)
-FIND_PACKAGE(cpprestsdk REQUIRED)
-FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
-### fleet-http-client dependencies
+IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
+    FIND_PACKAGE(fleet-http-client-shared 1.2.2 REQUIRED)
+    ### fleet-http-client dependencies
+    FIND_PACKAGE(Boost REQUIRED)
+    FIND_PACKAGE(cpprestsdk REQUIRED)
+    FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
+ENDIF ()
 
+CMDEF_ADD_LIBRARY(
+        LIBRARY_GROUP mission-module
+        TYPE INTERFACE
+        VERSION ${MISSION_MODULE_VERSION}
+)
 
 # Protobuf mission payload
 SET(Protobuf_USE_STATIC_LIBS ON)
@@ -68,52 +92,57 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         protobuf_mission_lib
 )
 
-CMDEF_ADD_LIBRARY(
-        LIBRARY_GROUP mission-module-gateway
-        TYPE SHARED
-        SOURCES "source/module_manager.cpp" "source/memory_management.cpp" "source/device_management.cpp"
-        VERSION ${MISSION_MODULE_VERSION}
-)
-TARGET_LINK_LIBRARIES(mission-module-gateway-shared
-        PRIVATE
-        mission_module_sources
-        PUBLIC
-        fleet-protocol-interface::module-maintainer-module-gateway-interface
-)
+IF (FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)
+    CMDEF_ADD_LIBRARY(
+            LIBRARY_GROUP mission-module-gateway
+            TYPE SHARED
+            SOURCES "source/module_manager.cpp" "source/memory_management.cpp" "source/device_management.cpp"
+            VERSION ${MISSION_MODULE_VERSION}
+    )
+    TARGET_LINK_LIBRARIES(mission-module-gateway-shared
+            PRIVATE
+            mission_module_sources
+            PUBLIC
+            fleet-protocol-interface::module-maintainer-module-gateway-interface
+    )
+    TARGET_LINK_LIBRARIES(mission-module-interface INTERFACE
+            mission-module-gateway-shared
+            mission-external-server-shared
+    )
+ENDIF ()
 
-CMDEF_ADD_LIBRARY(
-        LIBRARY_GROUP mission-external-server
-        TYPE SHARED
-        SOURCES "source/external_server_api.cpp" "source/memory_management.cpp" "source/device_management.cpp"
-        VERSION ${MISSION_MODULE_VERSION}
-)
-TARGET_LINK_LIBRARIES(mission-external-server-shared
-        PRIVATE
-        mission_module_sources
-        fleet-http-client-shared::fleet-http-client-shared
-        PUBLIC
-        fleet-protocol-interface::module-maintainer-external-server-interface
-)
+IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
+    CMDEF_ADD_LIBRARY(
+            LIBRARY_GROUP mission-external-server
+            TYPE SHARED
+            SOURCES "source/external_server_api.cpp" "source/memory_management.cpp" "source/device_management.cpp"
+            VERSION ${MISSION_MODULE_VERSION}
+    )
+    TARGET_LINK_LIBRARIES(mission-external-server-shared
+            PRIVATE
+            mission_module_sources
+            fleet-http-client-shared::fleet-http-client-shared
+            PUBLIC
+            fleet-protocol-interface::module-maintainer-external-server-interface
+    )
+    TARGET_LINK_LIBRARIES(mission-module-interface INTERFACE
+            mission-external-server-shared
+    )
+ENDIF ()
 
-CMDEF_ADD_LIBRARY(
-        LIBRARY_GROUP mission-module
-        TYPE INTERFACE
-        VERSION ${MISSION_MODULE_VERSION}
-)
-TARGET_LINK_LIBRARIES(mission-module-interface INTERFACE
-        mission-module-gateway-shared
-        mission-external-server-shared
-)
 IF (BRINGAUTO_INSTALL)
-    CMDEF_INSTALL(
-            TARGET mission-module-gateway-shared
-            NAMESPACE mission-module-interface::
-    )
-    CMDEF_INSTALL(
-            TARGET mission-external-server-shared
-            NAMESPACE mission-module-interface::
-    )
-
+    IF (FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)
+        CMDEF_INSTALL(
+                TARGET mission-module-gateway-shared
+                NAMESPACE mission-module-interface::
+        )
+    ENDIF ()
+    IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
+        CMDEF_INSTALL(
+                TARGET mission-external-server-shared
+                NAMESPACE mission-module-interface::
+        )
+    ENDIF ()
     CMDEF_INSTALL(
             TARGET mission-module-interface
             NAMESPACE mission-module-interface::
