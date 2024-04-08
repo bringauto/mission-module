@@ -24,6 +24,16 @@ IF (BRINGAUTO_PACKAGE AND NOT BRINGAUTO_INSTALL)
             "Installation forced by BRINGAUTO_PACKAGE creation"
             FORCE
     )
+    SET(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY ON
+            CACHE BOOL
+            "Module gateway forced by BRINGAUTO_PACKAGE creation"
+            FORCE
+    )
+    SET(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER ON
+            CACHE BOOL
+            "External server forced by BRINGAUTO_PACKAGE creation"
+            FORCE
+    )
 ENDIF ()
 
 FIND_PACKAGE(CMLIB
