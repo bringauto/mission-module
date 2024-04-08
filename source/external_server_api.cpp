@@ -150,7 +150,9 @@ int forward_status(const buffer device_status, const device_identification devic
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         std::string device_status_str;
         auto device_status_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyStatus(device_status);
-        google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str);
+        auto protobuf_options = google::protobuf::util::JsonPrintOptions();
+        protobuf_options.always_print_primitive_fields = true;
+        google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str, protobuf_options);
         
         bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
         bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
@@ -255,9 +257,15 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     }
 
     for(auto command : commands) {
+        if(command->getTimestamp() > con->last_command_timestamp) {
+            con->last_command_timestamp = command->getTimestamp();
+        }
+
         auto received_device_id = command->getDeviceId();
         MissionModule::AutonomyCommand proto_command {};
-        google::protobuf::util::JsonStringToMessage(command->getPayload()->getData()->getJson().serialize(), &proto_command);
+        if(!google::protobuf::util::JsonStringToMessage(command->getPayload()->getData()->getJson().serialize(), &proto_command).ok()) {
+            return NOT_OK;
+        }
         std::string command_str;
         proto_command.SerializeToString(&command_str);
 
@@ -268,10 +276,6 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
             received_device_id->getRole(),
             received_device_id->getName()
         ));
-
-        if(command->getTimestamp() > con->last_command_timestamp) {
-            con->last_command_timestamp = command->getTimestamp();
-        }
     }
 
     if(commands.empty()) {
