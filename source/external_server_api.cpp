@@ -248,6 +248,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     auto con = static_cast<struct bamm::context *> (context);
     std::unique_lock lock(con->mutex);
     std::vector<std::shared_ptr<model::Message>> commands;
+    bool parse_commands = con->last_command_timestamp != 0;
     
     try {
         commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
@@ -260,27 +261,29 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
             con->last_command_timestamp = command->getTimestamp();
         }
 
-        auto received_device_id = command->getDeviceId();
-        MissionModule::AutonomyCommand proto_command {};
-        const auto parse_status = google::protobuf::util::JsonStringToMessage(
-            command->getPayload()->getData()->getJson().serialize(), &proto_command
-        );
-        if(!parse_status.ok()) {
-            return NOT_OK;
-        }
-        std::string command_str;
-        proto_command.SerializeToString(&command_str);
+        if(parse_commands) {
+            auto received_device_id = command->getDeviceId();
+            MissionModule::AutonomyCommand proto_command {};
+            const auto parse_status = google::protobuf::util::JsonStringToMessage(
+                command->getPayload()->getData()->getJson().serialize(), &proto_command
+            );
+            if(!parse_status.ok()) {
+                return NOT_OK;
+            }
+            std::string command_str;
+            proto_command.SerializeToString(&command_str);
 
-        con->command_vector.emplace_back(command_str, bringauto::fleet_protocol::cxx::DeviceID(
-            received_device_id->getModuleId(),
-            received_device_id->getType(),
-            0, //priority
-            received_device_id->getRole(),
-            received_device_id->getName()
-        ));
+            con->command_vector.emplace_back(command_str, bringauto::fleet_protocol::cxx::DeviceID(
+                received_device_id->getModuleId(),
+                received_device_id->getType(),
+                0, //priority
+                received_device_id->getRole(),
+                received_device_id->getName()
+            ));
+        }
     }
 
-    if(commands.empty()) {
+    if(commands.empty() || !parse_commands) {
         return TIMEOUT_OCCURRED;
     }
     else {
