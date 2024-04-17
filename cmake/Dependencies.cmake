@@ -6,7 +6,7 @@ BA_PACKAGE_LIBRARY(protobuf      v4.21.12)
 BA_PACKAGE_LIBRARY(zlib          v1.2.11)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
-    BA_PACKAGE_LIBRARY(fleet-http-client-shared             v1.2.2)
+    BA_PACKAGE_LIBRARY(fleet-http-client-shared             v1.2.3)
     BA_PACKAGE_LIBRARY(boost         v1.78.0)
     BA_PACKAGE_LIBRARY(cpprestsdk    v2.10.20)
     BA_PACKAGE_LIBRARY(ba-logger     v1.2.0)
