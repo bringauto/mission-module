@@ -283,6 +283,10 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         }
     }
 
+    if(commands.empty() && !parse_commands) {
+        con->last_command_timestamp = 1;
+    }
+
     if(commands.empty() || !parse_commands) {
         return TIMEOUT_OCCURRED;
     }
