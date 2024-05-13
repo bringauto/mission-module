@@ -181,8 +181,38 @@ int forward_error_message(const buffer error_msg, const device_identification de
     if(context == nullptr){
         return CONTEXT_INCORRECT;
     }
+
+    auto con = static_cast<struct bamm::context *> (context);
+
+    if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
+        std::string error_msg_str;
+        auto error_msg_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyError(error_msg);
+        auto protobuf_options = google::protobuf::util::JsonPrintOptions();
+        protobuf_options.always_print_primitive_fields = true;
+        google::protobuf::util::MessageToJsonString(error_msg_parsed, &error_msg_str, protobuf_options);
+
+        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+        con->fleet_api_client->setDeviceIdentification(
+            bringauto::fleet_protocol::cxx::DeviceID(
+                device.module,
+                device.device_type,
+                0, //priority
+                std::string(device_role.getStringView()),
+                std::string(device_name.getStringView())
+            )
+        );
+
+        try {
+            con->fleet_api_client->sendStatus(error_msg_str, true);
+        } catch (std::exception& e) {
+            return NOT_OK;
+        }
+
+        return OK;
+    }
     
-    return OK;
+    return NOT_OK;
 }
 
 int device_disconnected(const int disconnect_type, const device_identification device, void *context) {
