@@ -204,7 +204,9 @@ int forward_error_message(const buffer error_msg, const device_identification de
         );
 
         try {
-            con->fleet_api_client->sendStatus(error_msg_str, true);
+            con->fleet_api_client->sendStatus(
+                error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
+            );
         } catch (std::exception& e) {
             return NOT_OK;
         }
