@@ -291,22 +291,30 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     for(auto command : commands) {
         std::cerr << "--------------- MM command: " << command->toJson().to_string() << std::endl;
         if(command->getTimestamp() > con->last_command_timestamp) {
+            std::cerr << "-------------HERE1" << std::endl;
             con->last_command_timestamp = command->getTimestamp();
+            std::cerr << "-------------HERE2" << std::endl;
         }
 
         if(parse_commands) {
+            std::cerr << "-------------HERE3" << std::endl;
             auto received_device_id = command->getDeviceId();
+            std::cerr << "-------------HERE4" << std::endl;
             MissionModule::AutonomyCommand proto_command {};
+            std::cerr << "-------------HERE5" << std::endl;
             const auto parse_status = google::protobuf::util::JsonStringToMessage(
                 command->getPayload()->getData()->getJson().serialize(), &proto_command
             ); // add parse options to fix errors?
+            std::cerr << "-------------HERE6" << std::endl;
             if(!parse_status.ok()) {
                 std::cerr << parse_status.message().ToString() << std::endl;
                 return NOT_OK;
             }
+            std::cerr << "-------------HERE7" << std::endl;
             std::string command_str;
+            std::cerr << "-------------HERE8" << std::endl;
             proto_command.SerializeToString(&command_str);
-
+            std::cerr << "-------------HERE9" << std::endl;
             con->command_vector.emplace_back(command_str, bringauto::fleet_protocol::cxx::DeviceID(
                 received_device_id->getModuleId(),
                 received_device_id->getType(),
@@ -314,6 +322,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
                 received_device_id->getRole(),
                 received_device_id->getName()
             ));
+            std::cerr << "-------------HERE10" << std::endl;
         }
     }
 
