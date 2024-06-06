@@ -327,15 +327,17 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     }
 
     if(commands.empty() && !parse_commands) {
+        std::cerr << "-------------HERE11" << std::endl;
         con->last_command_timestamp = 1;
+        std::cerr << "-------------HERE12" << std::endl;
     }
-
+    std::cerr << "-------------HERE13" << std::endl;
     if(commands.empty() || !parse_commands) {
+        std::cerr << "-------------HERE14" << std::endl;
         return TIMEOUT_OCCURRED;
     }
-    else {
-        return OK;
-    }
+    std::cerr << "-------------HERE15" << std::endl;
+    return OK;
 }
 
 int pop_command(buffer* command, device_identification* device, void *context) {
