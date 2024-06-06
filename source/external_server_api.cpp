@@ -20,7 +20,7 @@ using namespace org::openapitools::client;
 namespace bamm = bringauto::modules::mission_module;
 
 void *init(const config config_data) {
-    auto *context = new struct bamm::context;
+    auto *context = new bamm::context {};
     bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
     std::string api_url;
     std::string api_key;
@@ -289,6 +289,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     }
 
     for(auto command : commands) {
+        std::cerr << "--------------- MM command: " << command->toJson().to_string() << std::endl;
         if(command->getTimestamp() > con->last_command_timestamp) {
             con->last_command_timestamp = command->getTimestamp();
         }
