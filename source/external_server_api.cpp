@@ -299,8 +299,9 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
             MissionModule::AutonomyCommand proto_command {};
             const auto parse_status = google::protobuf::util::JsonStringToMessage(
                 command->getPayload()->getData()->getJson().serialize(), &proto_command
-            );
+            ); // add parse options to fix errors?
             if(!parse_status.ok()) {
+                std::cerr << parse_status.message().ToString() << std::endl;
                 return NOT_OK;
             }
             std::string command_str;
