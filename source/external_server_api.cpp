@@ -310,8 +310,9 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
                 std::cerr << parse_status.message().ToString() << std::endl;
                 return NOT_OK;
             }
-            std::string command_str;;
-            proto_command.SerializeToString(&command_str);
+            std::string command_str;
+            std::cerr << "----------------" << command_str << std::endl;
+            proto_command.SerializeToString(&command_str); //TODO maybe force when default values?
 
             con->command_vector.emplace_back(command_str, bringauto::fleet_protocol::cxx::DeviceID(
                 received_device_id->getModuleId(),
