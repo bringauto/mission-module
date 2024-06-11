@@ -342,9 +342,6 @@ int pop_command(buffer* command, device_identification* device, void *context) {
     auto command_object = std::get<0>(con->command_vector.back());
 
     bringauto::fleet_protocol::cxx::StringAsBuffer::createBufferAndCopyData(command, command_object);
-    /*if(command_object.serializeToBuffer(command) == NOT_OK) {
-        return NOT_OK;
-    }*/
 
     auto& device_id = std::get<1>(con->command_vector.back());
 

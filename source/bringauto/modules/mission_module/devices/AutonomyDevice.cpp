@@ -10,18 +10,22 @@
 
 namespace bringauto::modules::mission_module::devices {
 
-int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status) {
+int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
 	auto currentAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(current_status);
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
 
 	if (currentAutonomyStatus.state() != newAutonomyStatus.state()
-		|| !google::protobuf::util::MessageDifferencer::Equals(currentAutonomyStatus.nextstop(), newAutonomyStatus.nextstop())
-		|| (newAutonomyStatus.telemetry().speed() >= settings::status_speed_threshold)) {
+		|| !google::protobuf::util::MessageDifferencer::Equals(currentAutonomyStatus.nextstop(), newAutonomyStatus.nextstop())) {
 		return OK;
+	} else if (newAutonomyStatus.telemetry().speed() >= settings::status_speed_threshold) {
+		auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
+		if (last_sent_status_timestamps_[device_type] + settings::status_sending_period < current_time) {
+			last_sent_status_timestamps_[device_type] = current_time;
+			return OK;
+		}
 	}
-	else {
-		return CONDITION_NOT_MET;
-	}
+	return CONDITION_NOT_MET;
 }
 
 int AutonomyDevice::generate_command(struct buffer *generated_command, const struct buffer new_status,

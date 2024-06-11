@@ -11,8 +11,8 @@ namespace bringauto::settings {
 constexpr double status_speed_threshold = 1.0;
 
 /**
- * @brief How often status should be sent after the speed threshold is reached
+ * @brief Minimum time between two status messages being sent when speed is above the threshold
  */
-constexpr std::chrono::milliseconds status_sending_period = std::chrono::milliseconds(1000);
+constexpr std::chrono::milliseconds status_sending_period = std::chrono::milliseconds(2900);
 
 }

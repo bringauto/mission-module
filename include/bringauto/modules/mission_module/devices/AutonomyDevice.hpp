@@ -3,6 +3,8 @@
 #include <MissionModule.pb.h>
 #include <fleet_protocol/common_headers/memory_management.h>
 
+#include <map>
+
 namespace bringauto::modules::mission_module::devices {
 class AutonomyDevice {
 public:
@@ -14,12 +16,13 @@ public:
 	 *
 	 * @param current_status status data currently present in aggregator in binary form. Can be null for the first call
 	 * @param new_status status data sent by client in binary form
+	 * @param device_type type of the device
 	 *
 	 * @return OK if condition met.
 	 * @return CONDITION_NOT_MET if condition was not met
 	 * @return NOT_OK if other error occurred
 	*/
-	static int send_status_condition(const struct buffer current_status, const struct buffer new_status);
+	static int send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type);
 
 	/**
 	 * @brief generate new command based on current status and command and new status
@@ -90,6 +93,10 @@ private:
 	static MissionModule::AutonomyCommand generateCommand(std::vector<MissionModule::Station> stops, std::string route,
 														  MissionModule::AutonomyCommand::Action action);
 
+	/**
+	 * @brief Map of last sent status timestamps for each device type
+	 */
+	static std::map<unsigned int, std::chrono::milliseconds> last_sent_status_timestamps_;
 
 };
 }
