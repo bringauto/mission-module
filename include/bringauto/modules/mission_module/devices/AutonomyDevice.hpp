@@ -96,7 +96,7 @@ private:
 	/**
 	 * @brief Map of last sent status timestamps for each device type
 	 */
-	static std::map<unsigned int, std::chrono::milliseconds> last_sent_status_timestamps_;
+	inline static std::map<unsigned int, std::chrono::milliseconds> last_sent_status_timestamps_ {};
 
 };
 }
