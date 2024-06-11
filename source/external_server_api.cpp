@@ -307,7 +307,6 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
                 command->getPayload()->getData()->getJson().serialize(), &proto_command
             );
             if(!parse_status.ok()) {
-                std::cerr << parse_status.message().ToString() << std::endl;
                 return NOT_OK;
             }
             std::string command_str;
