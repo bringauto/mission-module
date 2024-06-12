@@ -93,6 +93,10 @@ private:
 	static MissionModule::AutonomyCommand generateCommand(std::vector<MissionModule::Station> stops, std::string route,
 														  MissionModule::AutonomyCommand::Action action);
 
+	/**
+	 * @brief Map of last sent status timestamps for each device type
+	 */
+	static std::map<unsigned int, std::chrono::milliseconds> last_sent_status_timestamps_;
 
 };
 }
