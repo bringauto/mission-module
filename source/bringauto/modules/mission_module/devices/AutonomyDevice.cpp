@@ -2,6 +2,7 @@
 #include <fleet_protocol/module_maintainer/module_gateway/module_manager.h>
 
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
+#include <bringauto/modules/mission_module/Constants.hpp>
 #include <bringauto/protobuf/ProtobufHelper.hpp>
 #include <google/protobuf/util/message_differencer.h>
 
@@ -9,18 +10,24 @@
 
 namespace bringauto::modules::mission_module::devices {
 
-int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status) {
+std::map<unsigned int, std::chrono::milliseconds> AutonomyDevice::last_sent_status_timestamps_ {};
+
+int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
 	auto currentAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(current_status);
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
 
 	if (currentAutonomyStatus.state() != newAutonomyStatus.state()
 		|| !google::protobuf::util::MessageDifferencer::Equals(currentAutonomyStatus.nextstop(), newAutonomyStatus.nextstop())) {
-		// TODO if distance change?
 		return OK;
+	} else if (newAutonomyStatus.telemetry().speed() >= settings::status_speed_threshold) {
+		auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
+		if (last_sent_status_timestamps_[device_type] + settings::status_sending_period < current_time) {
+			last_sent_status_timestamps_[device_type] = current_time;
+			return OK;
+		}
 	}
-	else {
-		return CONDITION_NOT_MET;
-	}
+	return CONDITION_NOT_MET;
 }
 
 int AutonomyDevice::generate_command(struct buffer *generated_command, const struct buffer new_status,
@@ -32,7 +39,7 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 	if (currentAutonomyStatus.state() == MissionModule::AutonomyStatus_State_DRIVE && newAutonomyStatus.state() == MissionModule::AutonomyStatus_State_IN_STOP) {
 		auto* stations = currentAutonomyCommand.mutable_stops();
 		if (stations->size() > 0) {
-			stations->erase(stations->begin());	// TODO Do I have to change the pointer?
+			stations->erase(stations->begin());
 		}
 	}
 	return protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(generated_command, currentAutonomyCommand);
@@ -64,8 +71,6 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 	}
 
 	return protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(error_message, autonomyError);
-
-	// TODO driven distance, battery, Will change when we migrate to new protobuf structure
 }
 
 int AutonomyDevice::generate_first_command(struct buffer *default_command) {

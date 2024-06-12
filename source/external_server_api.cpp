@@ -20,7 +20,7 @@ using namespace org::openapitools::client;
 namespace bamm = bringauto::modules::mission_module;
 
 void *init(const config config_data) {
-    auto *context = new struct bamm::context;
+    auto *context = new bamm::context {};
     bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
     std::string api_url;
     std::string api_key;
@@ -288,13 +288,20 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         return TIMEOUT_OCCURRED;
     }
 
+    bool received_no_commands = true;
     for(auto command : commands) {
         if(command->getTimestamp() > con->last_command_timestamp) {
             con->last_command_timestamp = command->getTimestamp();
         }
 
+        auto received_device_id = command->getDeviceId();
+        if(received_device_id->getModuleId() == bringauto::modules::mission_module::MISSION_MODULE_NUMBER) {
+            received_no_commands = false;
+        } else {
+            continue;
+        }
+
         if(parse_commands) {
-            auto received_device_id = command->getDeviceId();
             MissionModule::AutonomyCommand proto_command {};
             const auto parse_status = google::protobuf::util::JsonStringToMessage(
                 command->getPayload()->getData()->getJson().serialize(), &proto_command
@@ -315,16 +322,14 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         }
     }
 
-    if(commands.empty() && !parse_commands) {
+    if(received_no_commands && !parse_commands) {
         con->last_command_timestamp = 1;
     }
 
-    if(commands.empty() || !parse_commands) {
+    if(received_no_commands || !parse_commands) {
         return TIMEOUT_OCCURRED;
     }
-    else {
-        return OK;
-    }
+    return OK;
 }
 
 int pop_command(buffer* command, device_identification* device, void *context) {
@@ -336,9 +341,6 @@ int pop_command(buffer* command, device_identification* device, void *context) {
     auto command_object = std::get<0>(con->command_vector.back());
 
     bringauto::fleet_protocol::cxx::StringAsBuffer::createBufferAndCopyData(command, command_object);
-    /*if(command_object.serializeToBuffer(command) == NOT_OK) {
-        return NOT_OK;
-    }*/
 
     auto& device_id = std::get<1>(con->command_vector.back());
 

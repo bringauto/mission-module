@@ -11,7 +11,7 @@ namespace bamm = bringauto::modules::mission_module;
 [[nodiscard]] int send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
 	switch (device_type) {
 		case bamm::MISSION_MODULE_NUMBER:
-			return bamm::devices::AutonomyDevice::send_status_condition(current_status, new_status);
+			return bamm::devices::AutonomyDevice::send_status_condition(current_status, new_status, device_type);
 		default:
 			return NOT_OK;
 	}
