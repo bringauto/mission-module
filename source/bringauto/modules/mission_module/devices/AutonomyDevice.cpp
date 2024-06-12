@@ -10,6 +10,12 @@
 
 namespace bringauto::modules::mission_module::devices {
 
+/**
+ * @brief Map of last sent status timestamps for each device type
+ */
+static std::map<unsigned int, std::chrono::milliseconds> last_sent_status_timestamps_ {};
+
+
 int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
 	auto currentAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(current_status);
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
