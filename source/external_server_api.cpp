@@ -1,5 +1,5 @@
 #include <fleet_protocol/module_maintainer/external_server/external_server_interface.h>
-#include <bringauto/modules/mission_module/external_server_api_structures.hpp>
+#include <bringauto/modules/mission_module/Context.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
 #include <bringauto/protobuf/ProtobufHelper.hpp>
@@ -16,7 +16,6 @@
 #include <regex>
 
 
-using namespace org::openapitools::client;
 namespace bamm = bringauto::modules::mission_module;
 
 void *init(const config config_data) {
@@ -279,7 +278,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
     auto con = static_cast<struct bamm::context *> (context);
     std::unique_lock lock(con->mutex);
-    std::vector<std::shared_ptr<model::Message>> commands;
+    std::vector<std::shared_ptr<org::openapitools::client::model::Message>> commands;
     bool parse_commands = con->last_command_timestamp != 0;
     
     try {
@@ -295,7 +294,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         }
 
         auto received_device_id = command->getDeviceId();
-        if(received_device_id->getModuleId() == bringauto::modules::mission_module::MISSION_MODULE_NUMBER) {
+        if(received_device_id->getModuleId() == bamm::MISSION_MODULE_NUMBER) {
             received_no_commands = false;
         } else {
             continue;

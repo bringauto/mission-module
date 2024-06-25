@@ -3,7 +3,7 @@
 #include <chrono>
 
 
-namespace bringauto::settings {
+namespace bringauto::modules::mission_module {
 
 /**
  * @brief The speed threshold for the status to be sent periodically
