@@ -1,0 +1,51 @@
+@startuml command_activity_diagram
+<style>
+    activityDiagram {
+        BackgroundColor #88bcff
+        FontSize 12
+    }
+    start {BackgroundColor black}
+    stop {BackgroundColor black}
+    document {
+        BackgroundColor white
+    }
+    note {
+        BackgroundColor #ffee55
+    }
+</style>
+start
+
+switch (Action)
+case (\n   STOP)
+    :Set nextStop to "";
+    note left
+        This branch is
+        always used to
+        stop the car.
+    end note
+    #LightGray:Cancel driving;
+case (\n  NO_ACTION)
+    :Set nextStop to "";
+    note right
+        The stops as a
+        consequence of
+        not having another
+        stop to drive to.
+    end note
+    #LightGray:Cancel driving;
+case (\n   START)
+    if (Is list of stops empty?) then (No)
+        if (Is nextStop equal to name of stops[0]?) then (No)
+            :Set nextStop to stops[0];
+            #LightGray:Cancel driving;
+            :Start driving to nextStop;
+        else (Yes)
+        endif
+    else (Yes)
+        :Set nextStop to "";
+        #LightGray:Cancel driving;
+    endif
+endswitch
+stop
+
+@enduml
