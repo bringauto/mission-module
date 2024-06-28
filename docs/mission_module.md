@@ -1,6 +1,10 @@
 # Supported devices
 
-The ONLY supported device is the Autonomy Device. Device ID currently has the following field values:
+The ONLY supported device is the Autonomy Device, serving as a driver for the car. The device is connected to the Mission Module and receives the mission to drive the car to the desired stops.
+
+This module handles backward compatibility with Fleet protocol v1.2.0. This version did not have modules and supported only one type of payload - CarStateProtocol, which contains statuses from autonomy and commands for autonomy. The payload for the module is serialized by protobuf v 3.21.12, the same version as the fleet protocol itself.
+
+Device ID currently has the following field values:
 - module ID: 1,
 - device type: 0,
 - device role: `driving`.
@@ -19,7 +23,7 @@ The basic message structure for message in Internal and External protocol is des
 
 Below, the data passed in the messages used in the External Protocol are described. The data structure can be also found in the [.proto](../lib/protobuf-mission-module/) file.
 
-### Status data
+### Status payload data
 
 Always contains
 - state (State enum value: `IDLE`, `DRIVE`, `IN_STOP`, `OBSTACLE`, `ERROR`)
@@ -46,7 +50,7 @@ Example:
 }
 ```
 
-### Status Error data
+### Status Error payload data
 
 Always contains
 - finished stops (list of Station)
@@ -61,7 +65,7 @@ Example:
 }
 ```
 
-### Command payload
+### Command payload data
 
 Always contains
 - action (Action enum value)
@@ -111,4 +115,4 @@ The Autonomy keeps in memory the NAME of the next stop it should drive to (it ca
 
 ![activity diagram of autonomy receiving command](uml/exported_diagrams/command_activity_diagram.png "Activity diagram of the autonomy receiving command")
 
-
+The Autonomy device sends the status of the car to the Mission Module. The status contains field `State` with value correspoding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
