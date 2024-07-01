@@ -1,5 +1,5 @@
 #include <fleet_protocol/module_maintainer/external_server/external_server_interface.h>
-#include <bringauto/modules/mission_module/external_server_api_structures.hpp>
+#include <bringauto/modules/mission_module/Context.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
 #include <bringauto/protobuf/ProtobufHelper.hpp>
@@ -16,11 +16,10 @@
 #include <regex>
 
 
-using namespace org::openapitools::client;
 namespace bamm = bringauto::modules::mission_module;
 
 void *init(const config config_data) {
-    auto *context = new bamm::context {};
+    auto *context = new bamm::Context {};
     bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
     std::string api_url;
     std::string api_key;
@@ -132,7 +131,7 @@ int destroy(void **context) {
     if(*context == nullptr){
         return NOT_OK;
     }
-    auto con = reinterpret_cast<struct bamm::context **> (context);
+    auto con = reinterpret_cast<struct bamm::Context **> (context);
 
     delete *con;
     *con = nullptr;
@@ -144,7 +143,7 @@ int forward_status(const buffer device_status, const device_identification devic
         return CONTEXT_INCORRECT;
     }
     
-    auto con = static_cast<struct bamm::context *> (context);
+    auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         std::string device_status_str;
@@ -182,7 +181,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::context *> (context);
+    auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         std::string error_msg_str;
@@ -222,7 +221,7 @@ int device_disconnected(const int disconnect_type, const device_identification d
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::context *> (context);
+    auto con = static_cast<struct bamm::Context *> (context);
 
     const std::string_view device_device_role(static_cast<char*> (device.device_role.data), device.device_role.size_in_bytes);
     const std::string_view device_device_name(static_cast<char*> (device.device_name.data), device.device_name.size_in_bytes);
@@ -250,7 +249,7 @@ int device_connected(const device_identification device, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::context *> (context);
+    auto con = static_cast<struct bamm::Context *> (context);
 
     device_identification new_device;
 
@@ -277,9 +276,9 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::context *> (context);
+    auto con = static_cast<struct bamm::Context *> (context);
     std::unique_lock lock(con->mutex);
-    std::vector<std::shared_ptr<model::Message>> commands;
+    std::vector<std::shared_ptr<org::openapitools::client::model::Message>> commands;
     bool parse_commands = con->last_command_timestamp != 0;
     
     try {
@@ -295,7 +294,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         }
 
         auto received_device_id = command->getDeviceId();
-        if(received_device_id->getModuleId() == bringauto::modules::mission_module::MISSION_MODULE_NUMBER) {
+        if(received_device_id->getModuleId() == bamm::MISSION_MODULE_NUMBER) {
             received_no_commands = false;
         } else {
             continue;
@@ -337,7 +336,7 @@ int pop_command(buffer* command, device_identification* device, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::context *> (context);
+    auto con = static_cast<struct bamm::Context *> (context);
     auto command_object = std::get<0>(con->command_vector.back());
 
     bringauto::fleet_protocol::cxx::StringAsBuffer::createBufferAndCopyData(command, command_object);

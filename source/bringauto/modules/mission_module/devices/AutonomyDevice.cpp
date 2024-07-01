@@ -10,6 +10,8 @@
 
 namespace bringauto::modules::mission_module::devices {
 
+namespace bamm = bringauto::modules::mission_module;
+
 std::map<unsigned int, std::chrono::milliseconds> AutonomyDevice::last_sent_status_timestamps_ {};
 
 int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
@@ -19,10 +21,10 @@ int AutonomyDevice::send_status_condition(const struct buffer current_status, co
 	if (currentAutonomyStatus.state() != newAutonomyStatus.state()
 		|| !google::protobuf::util::MessageDifferencer::Equals(currentAutonomyStatus.nextstop(), newAutonomyStatus.nextstop())) {
 		return OK;
-	} else if (newAutonomyStatus.telemetry().speed() >= settings::status_speed_threshold) {
+	} else if (newAutonomyStatus.telemetry().speed() >= bamm::Constants::status_speed_threshold) {
 		auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		if (last_sent_status_timestamps_[device_type] + settings::status_sending_period < current_time) {
+		if (last_sent_status_timestamps_[device_type] + bamm::Constants::status_sending_period < current_time) {
 			last_sent_status_timestamps_[device_type] = current_time;
 			return OK;
 		}
@@ -36,7 +38,8 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
 	auto currentAutonomyCommand = protobuf::ProtobufHelper::parseAutonomyCommand(current_command);
 
-	if (currentAutonomyStatus.state() == MissionModule::AutonomyStatus_State_DRIVE && newAutonomyStatus.state() == MissionModule::AutonomyStatus_State_IN_STOP) {
+	if (currentAutonomyStatus.state() == MissionModule::AutonomyStatus_State_DRIVE &&
+			newAutonomyStatus.state() == MissionModule::AutonomyStatus_State_IN_STOP) {
 		auto* stations = currentAutonomyCommand.mutable_stops();
 		if (stations->size() > 0) {
 			stations->erase(stations->begin());
