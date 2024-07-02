@@ -1,6 +1,8 @@
 #pragma once
 
+#ifndef SKIP_PROTOBUF
 #include <MissionModule.pb.h>
+#endif
 #include <fleet_protocol/common_headers/memory_management.h>
 
 #include <map>
@@ -90,8 +92,10 @@ public:
 	 */
 	static int command_data_valid(const struct buffer command);
 private:
+#ifndef SKIP_PROTOBUF
 	static MissionModule::AutonomyCommand generateCommand(std::vector<MissionModule::Station> stops, std::string route,
 														  MissionModule::AutonomyCommand::Action action);
+#endif
 
 	/**
 	 * @brief Map of last sent status timestamps for each device type

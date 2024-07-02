@@ -17,6 +17,7 @@ OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
 OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, packager used if OFF" OFF)
 OPTION(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY "Build shared library for module gateway " ON)
 OPTION(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER "Build shared library for external server " ON)
+OPTION(SKIP_PROTOBUF "Handle commands and statuses only as JSON strings" OFF)
 
 IF (BRINGAUTO_PACKAGE)
     IF (NOT BRINGAUTO_INSTALL)
@@ -50,7 +51,11 @@ IF (NOT BRINGAUTO_SYSTEM_DEP)
     INCLUDE("cmake/Dependencies.cmake")
 ENDIF ()
 
-FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
+IF (SKIP_PROTOBUF)
+    FIND_PACKAGE(nlohmann_json 3.10.5 REQUIRED)
+ELSE ()
+    FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
+ENDIF ()
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 
@@ -68,18 +73,23 @@ CMDEF_ADD_LIBRARY(
         VERSION ${MISSION_MODULE_VERSION}
 )
 
-# Protobuf mission payload
-SET(Protobuf_USE_STATIC_LIBS ON)
-FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
-ADD_LIBRARY(protobuf_mission_lib STATIC ${protobuf_mission_cpp_files})
-TARGET_INCLUDE_DIRECTORIES(protobuf_mission_lib PUBLIC "lib/protobuf-mission-module/")
-TARGET_LINK_LIBRARIES(protobuf_mission_lib PUBLIC protobuf::libprotobuf)
+IF (SKIP_PROTOBUF)
+    # JSON mission payload
+    ADD_LIBRARY(message_handler_lib ALIAS nlohmann_json::nlohmann_json)
+ELSE()
+    # Protobuf mission payload
+    SET(Protobuf_USE_STATIC_LIBS ON)
+    FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
+    ADD_LIBRARY(message_handler_lib STATIC ${protobuf_mission_cpp_files})
+    TARGET_INCLUDE_DIRECTORIES(message_handler_lib PUBLIC "lib/protobuf-mission-module/")
+    TARGET_LINK_LIBRARIES(message_handler_lib PUBLIC protobuf::libprotobuf)
+ENDIF()
 
 FILE(GLOB_RECURSE HEADERS "include/*")
 
 ADD_LIBRARY(mission_module_hpp INTERFACE ${HEADERS})
 TARGET_INCLUDE_DIRECTORIES(mission_module_hpp INTERFACE "include/")
-TARGET_LINK_LIBRARIES(mission_module_hpp INTERFACE protobuf_mission_lib)
+TARGET_LINK_LIBRARIES(mission_module_hpp INTERFACE message_handler_lib)
 
 FILE(GLOB_RECURSE SOURCES "source/bringauto/*")
 
@@ -89,7 +99,7 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         mission_module_hpp
         fleet-protocol-interface::common-headers-interface
         fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
-        protobuf_mission_lib
+        message_handler_lib
 )
 
 IF (FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)

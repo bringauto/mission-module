@@ -2,12 +2,14 @@
 #include <bringauto/modules/mission_module/external_server_api_structures.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
-#include <bringauto/protobuf/ProtobufHelper.hpp>
 #include <bringauto/fleet_protocol/cxx/DeviceID.hpp>
 #include <bringauto/fleet_protocol/cxx/KeyValueConfig.hpp>
 #include <bringauto/fleet_protocol/cxx/StringAsBuffer.hpp>
 #include <bringauto/fleet_protocol/http_client/FleetApiClient.hpp>
+#ifndef SKIP_PROTOBUF
+#include <bringauto/protobuf/ProtobufHelper.hpp>
 #include <google/protobuf/util/json_util.h>
+#endif
  
 #include <vector>
 #include <cstring>
@@ -147,12 +149,16 @@ int forward_status(const buffer device_status, const device_identification devic
     auto con = static_cast<struct bamm::context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
+#ifdef SKIP_PROTOBUF
+        std::string device_status_str = device_status.getStringView();
+#else
         std::string device_status_str;
         auto device_status_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyStatus(device_status);
         auto protobuf_options = google::protobuf::util::JsonPrintOptions();
         protobuf_options.always_print_primitive_fields = true;
         google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str, protobuf_options);
-        
+#endif
+
         bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
         bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
@@ -302,6 +308,9 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         }
 
         if(parse_commands) {
+#ifdef SKIP_PROTOBUF
+            std::string command_str = command->getPayload()->getData()->getJson().serialize();
+#else
             MissionModule::AutonomyCommand proto_command {};
             const auto parse_status = google::protobuf::util::JsonStringToMessage(
                 command->getPayload()->getData()->getJson().serialize(), &proto_command
@@ -311,6 +320,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
             }
             std::string command_str;
             proto_command.SerializeToString(&command_str);
+#endif
 
             con->command_vector.emplace_back(command_str, bringauto::fleet_protocol::cxx::DeviceID(
                 received_device_id->getModuleId(),
