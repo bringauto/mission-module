@@ -15,6 +15,7 @@ SET(MISSION_MODULE_VERSION 1.2.7)
 OPTION(BRINGAUTO_INSTALL "Configure install" OFF)
 OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
 OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, packager used if OFF" OFF)
+OPTION(BRINGAUTO_GET_PACKAGES "Only download packages for this project" OFF)
 OPTION(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY "Build shared library for module gateway " ON)
 OPTION(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER "Build shared library for external server " ON)
 
@@ -48,6 +49,9 @@ FIND_PACKAGE(CMLIB
 )
 IF (NOT BRINGAUTO_SYSTEM_DEP)
     INCLUDE("cmake/Dependencies.cmake")
+    IF (BRINGAUTO_GET_PACKAGES)
+        RETURN()
+    ENDIF ()
 ENDIF ()
 
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
