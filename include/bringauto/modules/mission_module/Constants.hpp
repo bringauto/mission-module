@@ -3,16 +3,22 @@
 #include <chrono>
 
 
-namespace bringauto::settings {
+namespace bringauto::modules::mission_module {
 
 /**
- * @brief The speed threshold for the status to be sent periodically
+ * @brief Constants used in the mission module
  */
-constexpr double status_speed_threshold = 1.0;
+class Constants {
+public:
+    /**
+     * @brief The speed threshold for the status to be sent periodically
+     */
+    static constexpr double status_speed_threshold = 1.0;
 
-/**
- * @brief Minimum time between two status messages being sent when speed is above the threshold
- */
-constexpr std::chrono::milliseconds status_sending_period = std::chrono::milliseconds(2900);
+    /**
+     * @brief Minimum time between two status messages being sent when speed is above the threshold
+     */
+    static constexpr std::chrono::milliseconds status_sending_period = std::chrono::milliseconds(2900);
+};
 
 }

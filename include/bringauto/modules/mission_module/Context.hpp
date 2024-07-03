@@ -9,7 +9,7 @@
 
 namespace bringauto::modules::mission_module {
 
-struct context {
+struct Context {
     std::shared_ptr<bringauto::fleet_protocol::http_client::FleetApiClient> fleet_api_client;
     std::vector<device_identification> devices;
     std::vector<std::pair<std::string, bringauto::fleet_protocol::cxx::DeviceID>> command_vector;
