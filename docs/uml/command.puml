@@ -15,35 +15,53 @@
 </style>
 start
 
-switch (Action)
+note right
+    Device accepts
+    command with action
+    and list of stops.
+end note
+
+note left
+    Autonomy stores the `nextStop` -
+    - name of the next stop
+    it drives to, or empty string if
+    it is not driving.
+end note
+
+switch (Action value)
 case (\n   STOP)
-    :Set nextStop to "";
+    #LightGray:Set nextStop to "";
     note left
         This branch is
         always used to
         stop the car.
     end note
-    #LightGray:Cancel driving;
+    #LightGray:Autonomy cancels driving;
+    #Pink:send status with IDLE state;
 case (\n  NO_ACTION)
-    :Set nextStop to "";
+    #LightGray::Set nextStop to "";
     note right
         The stops as a
         consequence of
         not having another
         stop to drive to.
     end note
-    #LightGray:Cancel driving;
+    #LightGray:Autonomy cancels driving;
+    #Pink:send status with IDLE state;
 case (\n   START)
     if (Is list of stops empty?) then (No)
         if (Is nextStop equal to name of stops[0]?) then (No)
-            :Set nextStop to stops[0];
-            #LightGray:Cancel driving;
-            :Start driving to nextStop;
+            #LightGray::Set nextStop to first
+            stop in the stop list;
+            #LightGray:Autonomy cancels driving;
+            #LightGray:Start driving to nextStop;
+            #Pink:send status with DRIVE state;
         else (Yes)
         endif
     else (Yes)
-        :Set nextStop to "";
-        #LightGray:Cancel driving;
+        #LightGray:Set nextStop to "";
+        #LightGray:Autonomy cancels driving;
+        #Pink:send status with IDLE state;
     endif
 endswitch
 stop
