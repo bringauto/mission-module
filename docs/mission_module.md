@@ -1,29 +1,12 @@
-# Supported devices
+# Messages
 
-The ONLY supported device is the Autonomy Device, serving as a driver for the car. The device is connected to the Mission Module and receives the mission to drive the car to the desired stops.
-
-This module handles backward compatibility with Fleet protocol v1.2.0. This version did not have modules and supported only one type of payload - CarStateProtocol, which contains statuses from autonomy and commands for autonomy. The payload for the module is serialized by protobuf v 3.21.12, the same version as the fleet protocol itself.
-
-Device ID currently has the following field values:
-- module ID: 1,
-- device type: 0,
-- device role: `driving`.
-
-The last field `device name` is not prescribed, as it is only informative and optional.
-
-# Autonomy Device
-
-The device drives the car according to the current mission (list of stops with names and position).
-
-## Messages
-
-### Structure
+## Structure
 
 The basic message structure for message in Internal and External protocol is described [here](https://ref.bringautofleet.com/r/protocol/v2/2.0.1/message-structure).
 
 Below, the data passed in the messages used in the External Protocol are described. The data structure can be also found in the [.proto](../lib/protobuf-mission-module/) file.
 
-### Status payload data
+## Status payload data
 
 Always contains
 - state (State enum value: `IDLE`, `DRIVE`, `IN_STOP`, `OBSTACLE`, `ERROR`)
@@ -50,7 +33,7 @@ Example:
 }
 ```
 
-### Status Error payload data
+## Status Error payload data
 
 Always contains
 - finished stops (list of Station)
@@ -65,7 +48,7 @@ Example:
 }
 ```
 
-### Command payload data
+## Command payload data
 
 Always contains
 - action (Action enum value)
@@ -95,7 +78,7 @@ Example of command payload when there is no mission defined for the car:
 }
 ```
 
-### Validation
+## Validation
 
 The validation of each of the messages is done against the message structure described above (and in the [.proto](../lib/protobuf-mission-module/) file). The functions for validation:
 - `parseAutonomyStatus` for status,
@@ -103,7 +86,7 @@ The validation of each of the messages is done against the message structure des
 - `parseAutonomyCommand` for command.
 
 
-## Device State
+# Device State
 
 After connection, the autonomy device is in state `Idle`. The internal state of the Autonomy is driven by
 - the received command (e.g., command stops names and the action value),
