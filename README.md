@@ -1,12 +1,28 @@
-# Mission module
+# Introduction
 
-Module for missions. This module connects Fleet Management and autonomy.
+The module is a part of the BringAuto in-house [Fleet Protocol](https://drive.google.com/file/d/1LYX23FhOn9n67qt3apTscwstsx48Spzi/view), which provides communication between a car and a cloud.
 
-### Config
+This specific module provides communication between Fleet Management (an application giving control over the car's mission to the end user) and the Autonomy device - the driving component of the car.
 
-Some configuration is required when running this module. Example config:
+For a detailed description of the inner workings of the module, see the [Mission Module documentation](./docs/mission_module.md).
 
+# Dependencies
+
+- [CMakeLib](https://github.com/cmakelib/cmakelib)
+
+# Build
+
+```bash
+mkdir _build && cd _build
+cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] ..
+make
 ```
+
+# Configuration
+
+Configuration is required. Configuration file with example values:
+
+```json
 "config": {
     "api_url": "http://localhost:8080",
     "api_key": "StaticAccessKeyToBeUsedByDevelopersOnEtna",
@@ -19,19 +35,8 @@ Some configuration is required when running this module. Example config:
 }
 ```
 
-- api_url : URL of fleet http api ([project repository](https://gitlab.bringauto.com/bring-auto/fleet-protocol-v2/http-api/fleet-v2-http-api))
-- api_key : generated in fleet http api (script/new_admin.py)
-- company_name, car_name : used to identify car in fleet http api
-- max_requests_threshold_count, max_requests_threshold_period_ms, delay_after_threshold_reached_ms, retry_requests_delay_ms : explained in [http client README](./lib/fleet-v2-http-client/README.md)
+- `api_url`: URL of the Fleet Protocol HTTP API (the [project repository](https://gitlab.bringauto.com/bring-auto/fleet-protocol-v2/http-api/fleet-v2-http-api))
+- `api_key`: generated in Fleet Protocol HTTP API (script/new_admin.py)
+- `company_name`, `car_name`: used to identify the car in Fleet Protocol HTTP API
+- `max_requests_threshold_count`, `max_requests_threshold_period_ms`, `delay_after_threshold_reached_ms`, `retry_requests_delay_ms` : explained in [HTTP client README](./lib/fleet-v2-http-client/README.md)
 
-### Dependencies
-
-- [CMakeLib](https://github.com/cmakelib/cmakelib)
-
-### Build
-
-```
-mkdir _build && cd _build
-cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] ..
-make
-```
