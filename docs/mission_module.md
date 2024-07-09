@@ -6,18 +6,18 @@ Here, additional info on the Mission Module is provided. For the purpose and usa
 
 ## Autonomy Device
 
-After connection, the autonomy device is in state `Idle`. The internal state of the Autonomy is driven by
+After connection, the autonomy device is in a state `Idle`. The internal state of Autonomy is driven by
 
-- the received command (e.g., command stops names and the action value),
-- the sensors for car orientation (e.g., some obstacle prevents car from driving).
+- the received command (e.g., the command stops names and the action value),
+- the sensors for car orientation (e.g., some obstacle prevents the car from driving).
 
 ![autonomy state diagram](images/image.png "Car state diagram")
 
-The Autonomy keeps in memory the NAME of the next stop (the `nextStop` in the acitivty diagram below), it should drive to (it can be empty). This stop is used when calling for change in the internal components of the Autonomy device driving the car. The actions taken by the autonomy after receiving command are shown below. Note the `route` in the command is informative and does not affect the actions.
+The Autonomy keeps in memory the NAME of the next stop (the `nextStop` in the activity diagram below), it should drive to (it can be empty). This stop is used when calling for a change in the internal components of the Autonomy device driving the car. The actions taken by the autonomy after receiving the command are shown below. Note the `route` in the command is informative and does not affect the actions.
 
 ![activity diagram of autonomy receiving command](uml/exported_diagrams/command_activity_diagram.png "Activity diagram of the autonomy receiving command")
 
-The Autonomy device sends the status of the car to the Mission Module. The status contains field `State` with value correspoding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
+The Autonomy device sends the status of the car to the Mission Module. The status contains a field `State` with the value corresponding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
 
 # Messages
 
@@ -31,7 +31,7 @@ Always contains
 
 - state (State enum value: `IDLE`, `DRIVE`, `IN_STOP`, `OBSTACLE`, `ERROR`)
 
-If state is `DRIVE` or `IN_STOP`, it must contain
+If the state is `DRIVE` or `IN_STOP`, it must contain
 
 - next stop (`Station`)
 
@@ -104,7 +104,7 @@ Always contains
 - stations (list of Station)
 - route (string)
 
-Example of command payload when car received the mission:
+Example of command payload when the car received the mission:
 
 ```json
 {
