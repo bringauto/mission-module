@@ -10,11 +10,12 @@ INCLUDE(CheckPIESupported)
 CHECK_PIE_SUPPORTED()
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-SET(MISSION_MODULE_VERSION 1.2.7)
+SET(MISSION_MODULE_VERSION 1.2.8)
 
 OPTION(BRINGAUTO_INSTALL "Configure install" OFF)
 OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
 OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, packager used if OFF" OFF)
+OPTION(BRINGAUTO_GET_PACKAGES_ONLY "Only download packages for this project" OFF)
 OPTION(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY "Build shared library for module gateway " ON)
 OPTION(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER "Build shared library for external server " ON)
 OPTION(SKIP_PROTOBUF "Handle commands and statuses only as JSON strings" OFF)
@@ -49,6 +50,9 @@ FIND_PACKAGE(CMLIB
 )
 IF (NOT BRINGAUTO_SYSTEM_DEP)
     INCLUDE("cmake/Dependencies.cmake")
+    IF (BRINGAUTO_GET_PACKAGES_ONLY)
+        RETURN()
+    ENDIF ()
 ENDIF ()
 
 IF (SKIP_PROTOBUF)
