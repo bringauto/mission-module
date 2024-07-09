@@ -1,6 +1,6 @@
 # Introduction to the Mission Module details
 
-Here, additional info related to the Mission Module functionality is provided. The info on the Mission Module purpose and usage is in the main [README](../README.md).
+Here, additional info on the Mission Module is provided. For the purpose and usage see the [README](../README.md).
 
 # Behavior of supported devices
 
@@ -12,7 +12,7 @@ After connection, the autonomy device is in state `Idle`. The internal state of 
 
 ![autonomy state diagram](images/image.png "Car state diagram")
 
-The Autonomy keeps in memory the NAME of the next stop it should drive to (it can be empty). This stop is used when calling for change in the internal components of the Autonomy device driving the car. The actions taken by the autonomy after receiving command are shown below. Note the `route` in the command is informative and does not affect the actions.
+The Autonomy keeps in memory the NAME of the next stop (the `nextStop` in the acitivty diagram below), it should drive to (it can be empty). This stop is used when calling for change in the internal components of the Autonomy device driving the car. The actions taken by the autonomy after receiving command are shown below. Note the `route` in the command is informative and does not affect the actions.
 
 ![activity diagram of autonomy receiving command](uml/exported_diagrams/command_activity_diagram.png "Activity diagram of the autonomy receiving command")
 

@@ -2,17 +2,19 @@
 
 The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](https://drive.google.com/file/d/1LYX23FhOn9n67qt3apTscwstsx48Spzi/view) for communication between a car and a cloud.
 
-It provides communication between Fleet Management (an application giving control over the car's mission to the end user) and the Autonomy device - the driving component of the car.
+It provides communication between
+1. Fleet Management - the application giving control over the car's mission to the end user,
+2. Autonomy device - the driving component of the car.
 
 For a detailed description of the inner workings, see the [Mission Module documentation](./docs/mission_module.md).
 
 # Identification and supported devices
 
-The Mission Module is identified by a module number (module ID) `1`. Below are listed the supported devices.
+Module number/ID: `1`.
 
 ## Autonomy Device
 
-The device drives the car according to the current mission (list of stops with names and positions).
+The device drives the car according to the current mission.
 
 ### Device identification
 - device type: 0
