@@ -19,7 +19,6 @@ The Autonomy keeps in memory the NAME of the next stop (the `nextStop` in the ac
 
 The Autonomy device sends the status of the car to the Mission Module. The status contains field `State` with value correspoding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
 
-
 # Messages
 
 ## Structure
@@ -44,16 +43,24 @@ Example:
 
 ```json
 {
-    "state": "DRIVE",
-    "telemetry": {
-        "position": {"latitude": 45.8137528, "longitude": 15.9870608, "altitude": 120.7},
-        "speed": 7.2,
-        "fuel": 0.62
+  "state": "DRIVE",
+  "telemetry": {
+    "position": {
+      "latitude": 45.8137528,
+      "longitude": 15.9870608,
+      "altitude": 120.7
     },
-    "nextStop": {
-        "name": "Ribnjak",
-        "position": {"latitude": 45.815011, "longitude": 15.981919, "altitude": 125.3}
+    "speed": 7.2,
+    "fuel": 0.62
+  },
+  "nextStop": {
+    "name": "Ribnjak",
+    "position": {
+      "latitude": 45.815011,
+      "longitude": 15.981919,
+      "altitude": 125.3
     }
+  }
 }
 ```
 
@@ -67,10 +74,24 @@ Example:
 
 ```json
 {
-    "finishedStops": [
-        {"name": "Trg Eugena Kvaternika", "position": {"latitude": 45.8144669, "longitude": 15.9965289, "altitude": 115.1}},
-        {"name": "Vlaška", "position": {"latitude": 45.8139306, "longitude": 15.9913147, "altitude": 118.4}}
-    ]
+  "finishedStops": [
+    {
+      "name": "Trg Eugena Kvaternika",
+      "position": {
+        "latitude": 45.8144669,
+        "longitude": 15.9965289,
+        "altitude": 115.1
+      }
+    },
+    {
+      "name": "Vlaška",
+      "position": {
+        "latitude": 45.8139306,
+        "longitude": 15.9913147,
+        "altitude": 118.4
+      }
+    }
+  ]
 }
 ```
 
@@ -87,13 +108,34 @@ Example of command payload when car received the mission:
 
 ```json
 {
-    "action": "START",
-    "stations": [
-        {"name": "Ribnjak", "position": {"latitude": 45.815011, "longitude": 15.981919, "altitude": 125.3}},
-        {"name": "Trg hrvatskih velikana", "position": {"latitude": 45.8120758, "longitude": 15.9837108, "altitude": 120.7}},
-        {"name": "Trg Eugena Kvaternika", "position": {"latitude": 45.8144669, "longitude": 15.9965289, "altitude": 115.1}}
-    ],
-    "route": "Kvatrić"
+  "action": "START",
+  "stations": [
+    {
+      "name": "Ribnjak",
+      "position": {
+        "latitude": 45.815011,
+        "longitude": 15.981919,
+        "altitude": 125.3
+      }
+    },
+    {
+      "name": "Trg hrvatskih velikana",
+      "position": {
+        "latitude": 45.8120758,
+        "longitude": 15.9837108,
+        "altitude": 120.7
+      }
+    },
+    {
+      "name": "Trg Eugena Kvaternika",
+      "position": {
+        "latitude": 45.8144669,
+        "longitude": 15.9965289,
+        "altitude": 115.1
+      }
+    }
+  ],
+  "route": "Kvatrić"
 }
 ```
 
@@ -101,9 +143,9 @@ Example of command payload when there is no mission defined for the car:
 
 ```json
 {
-    "action": "NO_ACTION",
-    "stations": [],
-    "route": ""
+  "action": "NO_ACTION",
+  "stations": [],
+  "route": ""
 }
 ```
 
