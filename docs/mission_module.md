@@ -1,3 +1,24 @@
+# Introduction to the Mission Module details
+
+Here, additional info related to the Mission Module functionality is provided. The info on the Mission Module purpose and usage is in the main [README](../README.md).
+
+# Behavior of supported devices
+
+## Autonomy Device
+
+After connection, the autonomy device is in state `Idle`. The internal state of the Autonomy is driven by
+- the received command (e.g., command stops names and the action value),
+- the sensors for car orientation (e.g., some obstacle prevents car from driving).
+
+![autonomy state diagram](images/image.png "Car state diagram")
+
+The Autonomy keeps in memory the NAME of the next stop it should drive to (it can be empty). This stop is used when calling for change in the internal components of the Autonomy device driving the car. The actions taken by the autonomy after receiving command are shown below. Note the `route` in the command is informative and does not affect the actions.
+
+![activity diagram of autonomy receiving command](uml/exported_diagrams/command_activity_diagram.png "Activity diagram of the autonomy receiving command")
+
+The Autonomy device sends the status of the car to the Mission Module. The status contains field `State` with value correspoding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
+
+
 # Messages
 
 ## Structure
@@ -84,18 +105,3 @@ The validation of each of the messages is done against the message structure des
 - `parseAutonomyStatus` for status,
 - `parseAutonomyError` for status error,
 - `parseAutonomyCommand` for command.
-
-
-# Device State
-
-After connection, the autonomy device is in state `Idle`. The internal state of the Autonomy is driven by
-- the received command (e.g., command stops names and the action value),
-- the sensors for car orientation (e.g., some obstacle prevents car from driving).
-
-![autonomy state diagram](images/image.png "Car state diagram")
-
-The Autonomy keeps in memory the NAME of the next stop it should drive to (it can be empty). This stop is used when calling for change in the internal components of the Autonomy device driving the car. The actions taken by the autonomy after receiving command are shown below. Note the `route` in the command is informative and does not affect the actions.
-
-![activity diagram of autonomy receiving command](uml/exported_diagrams/command_activity_diagram.png "Activity diagram of the autonomy receiving command")
-
-The Autonomy device sends the status of the car to the Mission Module. The status contains field `State` with value correspoding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
