@@ -1,6 +1,6 @@
 # Introduction
 
-The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](https://drive.google.com/file/d/1LYX23FhOn9n67qt3apTscwstsx48Spzi/view) for communication between a car and a cloud.
+The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](https://ref.bringautofleet.com/r/protocol/v2/2.0.1/summary) for communication between a car and a cloud.
 
 It provides communication between
 1. Fleet Management - the application giving control over the car's mission to the end user,
@@ -50,8 +50,8 @@ Configuration is required. Configuration file with example values:
 }
 ```
 
-- `api_url`: URL of the Fleet Protocol HTTP API (the [project repository](https://gitlab.bringauto.com/bring-auto/fleet-protocol-v2/http-api/fleet-v2-http-api))
+- `api_url`: URL of the Fleet Protocol HTTP API (the [project repository](https://github.com/bringauto/fleet-protocol-http-api))
 - `api_key`: generated in Fleet Protocol HTTP API (script/new_admin.py)
 - `company_name`, `car_name`: used to identify the car in Fleet Protocol HTTP API
-- `max_requests_threshold_count`, `max_requests_threshold_period_ms`, `delay_after_threshold_reached_ms`, `retry_requests_delay_ms` : explained in [HTTP client README](./lib/fleet-v2-http-client/README.md)
+- `max_requests_threshold_count`, `max_requests_threshold_period_ms`, `delay_after_threshold_reached_ms`, `retry_requests_delay_ms`: explained in [HTTP client README](./lib/fleet-v2-http-client/README.md)
 

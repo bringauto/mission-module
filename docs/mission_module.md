@@ -24,8 +24,6 @@ The Autonomy device sends the status of the car to the Mission Module. The statu
 
 ## Structure
 
-The basic message structure for message in Internal and External protocol is described [here](https://ref.bringautofleet.com/r/protocol/v2/2.0.1/message-structure).
-
 Below, the data passed in the messages used in the External Protocol are described. The data structure can be also found in the [.proto](../lib/protobuf-mission-module/) file.
 
 ## Status payload data
