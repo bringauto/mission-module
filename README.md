@@ -17,6 +17,7 @@ Module number/ID: `1`.
 The device drives the car according to the current mission.
 
 ### Device identification
+
 - device type: 0
 - device role: `driving`
 

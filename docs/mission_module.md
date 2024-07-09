@@ -7,6 +7,7 @@ Here, additional info on the Mission Module is provided. For the purpose and usa
 ## Autonomy Device
 
 After connection, the autonomy device is in state `Idle`. The internal state of the Autonomy is driven by
+
 - the received command (e.g., command stops names and the action value),
 - the sensors for car orientation (e.g., some obstacle prevents car from driving).
 
@@ -30,12 +31,15 @@ Below, the data passed in the messages used in the External Protocol are describ
 ## Status payload data
 
 Always contains
+
 - state (State enum value: `IDLE`, `DRIVE`, `IN_STOP`, `OBSTACLE`, `ERROR`)
 
 If state is `DRIVE` or `IN_STOP`, it must contain
+
 - next stop (`Station`)
 
 Optionally, the status contains
+
 - telemetry (`Telemetry`)
 
 Example:
@@ -58,6 +62,7 @@ Example:
 ## Status Error payload data
 
 Always contains
+
 - finished stops (list of Station)
 
 Example:
@@ -74,6 +79,7 @@ Example:
 ## Command payload data
 
 Always contains
+
 - action (Action enum value)
 - stop (Station)
 - stations (list of Station)
@@ -106,6 +112,7 @@ Example of command payload when there is no mission defined for the car:
 ## Validation
 
 The validation of each of the messages is done against the message structure described above (and in the [.proto](../lib/protobuf-mission-module/) file). The functions for validation:
+
 - `parseAutonomyStatus` for status,
 - `parseAutonomyError` for status error,
 - `parseAutonomyCommand` for command.
