@@ -39,6 +39,7 @@ Optionally, the status contains
 - telemetry (`Telemetry`)
 
 Example:
+
 ```json
 {
     "state": "DRIVE",
@@ -60,6 +61,7 @@ Always contains
 - finished stops (list of Station)
 
 Example:
+
 ```json
 {
     "finishedStops": [
@@ -78,6 +80,7 @@ Always contains
 - route (string)
 
 Example of command payload when car received the mission:
+
 ```json
 {
     "action": "START",
@@ -91,6 +94,7 @@ Example of command payload when car received the mission:
 ```
 
 Example of command payload when there is no mission defined for the car:
+
 ```json
 {
     "action": "NO_ACTION",
