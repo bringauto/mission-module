@@ -1,4 +1,4 @@
-syntax = "proto3";
+edition = "2023";
 
 /*
  * Mission module contains support for controlling the missions of a CAR.
@@ -22,7 +22,7 @@ message AutonomyStatus{
      * - negative value implies Backward car moving,
      * - zero value implies that the car stays at a place.
      */
-    double speed = 1;
+    double speed = 1 [features.field_presence = IMPLICIT];
 
     /**
      * Fuel of the car in percents.
@@ -30,7 +30,7 @@ message AutonomyStatus{
      * - 1.0 means full battery or tank.
      * Interpolation between 0.0 and 1.0 must be linear!
      */
-    double fuel = 2;
+    double fuel = 2 [features.field_presence = IMPLICIT];
 
     /**
       * Car position in the global map (WGS84)
@@ -80,13 +80,13 @@ message AutonomyStatus{
   /**
    * Current state. If not set Car is in the IDLE state!
    */
-  State state = 2;
+  State state = 2 [features.field_presence = IMPLICIT];
 
   /**
    * Name of the stop as specified in CarCommand::stops.
    * will not be defined if there is no station in the mission
    */
-  optional Station nextStop = 3;
+  Station nextStop = 3;
 }
 
 /*
@@ -127,9 +127,9 @@ message AutonomyCommand{
   /**
    * Name of the route, that the autonomy will follow
    */
-  string route = 2;
+  string route = 2 [features.field_presence = IMPLICIT];
 
-  Action action = 3;
+  Action action = 3 [features.field_presence = IMPLICIT];
 }
 
 /*
@@ -152,7 +152,7 @@ message Station {
   /**
    * The name of the station.
    */
-  string name = 1;
+  string name = 1 [features.field_presence = IMPLICIT];
 
   /**
    * Position of the station
@@ -167,15 +167,15 @@ message Position {
   /**
    * WGS84 latitude,
    */
-  double latitude = 1;
+  double latitude = 1 [features.field_presence = IMPLICIT];
 
   /**
    * WGS84 longitude
    */
-  double longitude = 2;
+  double longitude = 2 [features.field_presence = IMPLICIT];
 
   /**
    * altitude in [m]
    */
-  double altitude = 3;
+  double altitude = 3 [features.field_presence = IMPLICIT];
 }

@@ -149,8 +149,12 @@ int forward_status(const buffer device_status, const device_identification devic
         std::string device_status_str;
         auto device_status_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyStatus(device_status);
         auto protobuf_options = google::protobuf::util::JsonPrintOptions();
-        protobuf_options.always_print_primitive_fields = true;
-        google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str, protobuf_options);
+        protobuf_options.always_print_fields_with_no_presence = true;
+        auto rc = google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str, protobuf_options);
+
+        if (!rc.ok()) {
+            return NOT_OK;
+        }
         
         bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
         bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
@@ -187,8 +191,13 @@ int forward_error_message(const buffer error_msg, const device_identification de
         std::string error_msg_str;
         auto error_msg_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyError(error_msg);
         auto protobuf_options = google::protobuf::util::JsonPrintOptions();
-        protobuf_options.always_print_primitive_fields = true;
-        google::protobuf::util::MessageToJsonString(error_msg_parsed, &error_msg_str, protobuf_options);
+        protobuf_options.always_print_fields_with_no_presence = true;
+        auto rc = google::protobuf::util::MessageToJsonString(error_msg_parsed, &error_msg_str, protobuf_options);
+
+        if (!rc.ok()) {
+            return NOT_OK;
+        }
+        
 
         bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
         bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
