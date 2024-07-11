@@ -1,3 +1,4 @@
+#ifndef SKIP_PROTOBUF
 #include <fleet_protocol/common_headers/general_error_codes.h>
 
 #include <bringauto/protobuf/ProtobufHelper.hpp>
@@ -29,4 +30,4 @@ MissionModule::AutonomyError ProtobufHelper::parseAutonomyError(struct buffer er
 	return autonomyError;
 }
 }
-
+#endif
