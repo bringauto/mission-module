@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef SKIP_PROTOBUF
 #include <MissionModule.pb.h>
 #include <fleet_protocol/common_headers/memory_management.h>
 
@@ -17,3 +18,4 @@ public:
 
 };
 }
+#endif

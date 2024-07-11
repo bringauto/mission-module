@@ -149,7 +149,8 @@ int forward_status(const buffer device_status, const device_identification devic
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
 #ifdef SKIP_PROTOBUF
-        std::string device_status_str = device_status.getStringView();
+        bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
+        auto device_status_str = std::string(device_status_bas.getStringView());
 #else
         std::string device_status_str;
         auto device_status_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyStatus(device_status);
@@ -190,11 +191,16 @@ int forward_error_message(const buffer error_msg, const device_identification de
     auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
+#ifdef SKIP_PROTOBUF
+        bringauto::fleet_protocol::cxx::BufferAsString error_msg_bas(&error_msg);
+        auto error_msg_str = std::string(error_msg_bas.getStringView());
+#else
         std::string error_msg_str;
         auto error_msg_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyError(error_msg);
         auto protobuf_options = google::protobuf::util::JsonPrintOptions();
         protobuf_options.always_print_primitive_fields = true;
         google::protobuf::util::MessageToJsonString(error_msg_parsed, &error_msg_str, protobuf_options);
+#endif
 
         bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
         bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);

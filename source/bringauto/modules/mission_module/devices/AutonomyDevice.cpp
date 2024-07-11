@@ -1,4 +1,8 @@
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+#include <bringauto/json/DeviceStatus.hpp>
+#include <bringauto/json/DeviceCommand.hpp>
+#include <bringauto/json/DeviceError.hpp>
+#else
 #include <MissionModule.pb.h>
 #include <bringauto/protobuf/ProtobufHelper.hpp>
 #include <google/protobuf/util/message_differencer.h>
@@ -8,6 +12,7 @@
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
 #include <bringauto/modules/mission_module/Constants.hpp>
 
+#include <cstring>
 
 
 
@@ -18,12 +23,24 @@ namespace bamm = bringauto::modules::mission_module;
 std::map<unsigned int, std::chrono::milliseconds> AutonomyDevice::last_sent_status_timestamps_ {};
 
 int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+	bringauto::json::DeviceStatus current_status_object {};
+	bringauto::json::DeviceStatus new_status_object {};
+	current_status_object.deserializeFromBuffer(current_status);
+	new_status_object.deserializeFromBuffer(new_status);
+	auto currentAutonomyStatus = current_status_object.getStatus();
+	auto newAutonomyStatus = new_status_object.getStatus();
+#else
 	auto currentAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(current_status);
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
+#endif
 
 	if (currentAutonomyStatus.state() != newAutonomyStatus.state()
+#ifdef SKIP_PROTOBUF
+		|| currentAutonomyStatus.nextstop() != newAutonomyStatus.nextstop()) {
+#else
 		|| !google::protobuf::util::MessageDifferencer::Equals(currentAutonomyStatus.nextstop(), newAutonomyStatus.nextstop())) {
+#endif
 		return OK;
 	} else if (newAutonomyStatus.telemetry().speed() >= bamm::Constants::status_speed_threshold) {
 		auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -34,14 +51,24 @@ int AutonomyDevice::send_status_condition(const struct buffer current_status, co
 		}
 	}
 	return CONDITION_NOT_MET;
-#else
-	return OK;
-#endif
 }
 
 int AutonomyDevice::generate_command(struct buffer *generated_command, const struct buffer new_status,
 									 const struct buffer current_status, const struct buffer current_command) {
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+	bringauto::json::DeviceStatus current_status_object {};
+	bringauto::json::DeviceStatus new_status_object {};
+	bringauto::json::DeviceCommand current_command_object {};
+	current_status_object.deserializeFromBuffer(current_status);
+	new_status_object.deserializeFromBuffer(new_status);
+	current_command_object.deserializeFromBuffer(current_command);
+
+	if (current_status_object.getStatus().state() == bringauto::json::AutonomyState::DRIVE &&
+			new_status_object.getStatus().state() == bringauto::json::AutonomyState::IN_STOP) {
+		current_command_object.removeFirstStop();
+	}
+	return current_command_object.serializeToBuffer(generated_command);
+#else
 	auto currentAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(current_status);
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
 	auto currentAutonomyCommand = protobuf::ProtobufHelper::parseAutonomyCommand(current_command);
@@ -54,12 +81,6 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 		}
 	}
 	return protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(generated_command, currentAutonomyCommand);
-#else
-	if (allocate(generated_command, current_command.size_in_bytes) != OK) {
-		return NOT_OK;
-	}
-	std::memcpy(generated_command->data, current_command.data, generated_command->size_in_bytes);
-	return OK;
 #endif
 }
 
@@ -74,7 +95,25 @@ int AutonomyDevice::aggregate_status(struct buffer *aggregated_status, const str
 
 int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct buffer current_error_message,
 									const struct buffer status) {
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+	bringauto::json::DeviceStatus status_object {};
+	bringauto::json::DeviceError error_object {};
+	status_object.deserializeFromBuffer(status);
+	error_object.deserializeFromBuffer(current_error_message);
+
+	if (status_object.getStatus().state() == bringauto::json::AutonomyState::IN_STOP) {
+		auto nextStop = status_object.getStatus().nextstop();
+		if (!error_object.getError().finishedstops().empty()) {
+			if (error_object.getError().finishedstops().back() != nextStop) {
+				error_object.addFinishedStop(nextStop);
+			}
+		} else {
+			error_object.addFinishedStop(nextStop);
+		}
+	}
+
+	return error_object.serializeToBuffer(error_message);
+#else
 	auto autonomyError = protobuf::ProtobufHelper::parseAutonomyError(current_error_message);
 	auto autonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(status);
 
@@ -90,54 +129,51 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 	}
 
 	return protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(error_message, autonomyError);
-#else
-	if (allocate(error_message, current_error_message.size_in_bytes) != OK) {
-		return NOT_OK;
-	}
-	std::memcpy(error_message->data, current_error_message.data, error_message->size_in_bytes);
-	return OK;
 #endif
 }
 
 int AutonomyDevice::generate_first_command(struct buffer *default_command) {
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+	bringauto::json::DeviceCommand command_object {};
+	command_object.setAction(bringauto::json::AutonomyAction::NO_ACTION);
+	return command_object.serializeToBuffer(default_command);
+#else
 	MissionModule::AutonomyCommand command = generateCommand(std::vector<MissionModule::Station>(), "", MissionModule::AutonomyCommand_Action_NO_ACTION);
 	if (protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(default_command, command) != OK) {
 		return NOT_OK;
 	}
 	return OK;
-#else
-	std::string default_command_str = "{}";
-	if ((allocate(default_command, default_command_str.length())) == OK) {
-		std::memcpy(default_command->data, default_command_str.c_str(), default_command->size_in_bytes);
-		return OK;
-	}
-	return NOT_OK;
 #endif
 }
 
 int AutonomyDevice::status_data_valid(const struct buffer status) {
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+	bringauto::json::DeviceStatus status_object {};
+	return status_object.deserializeFromBuffer(status);
+#else
 	try {
 		protobuf::ProtobufHelper::parseAutonomyStatus(status);
 	}
 	catch (...) {
 		return NOT_OK;
 	}
-#endif
 	return OK;
+#endif
 }
 
 int AutonomyDevice::command_data_valid(const struct buffer command) {
-#ifndef SKIP_PROTOBUF
+#ifdef SKIP_PROTOBUF
+	bringauto::json::DeviceCommand command_object {};
+	return command_object.deserializeFromBuffer(command);
+#else
 	try {
 		protobuf::ProtobufHelper::parseAutonomyCommand(command);
 	}
 	catch (...) {
 		return NOT_OK;
 	}
-#endif
 	return OK;
+#endif
 }
 
 #ifndef SKIP_PROTOBUF
