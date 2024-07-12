@@ -54,7 +54,7 @@ IF (NOT BRINGAUTO_SYSTEM_DEP)
     ENDIF ()
 ENDIF ()
 
-FIND_PACKAGE(Protobuf 5.27.2 REQUIRED)
+FIND_PACKAGE(Protobuf 5.27.2 CONFIG REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 
