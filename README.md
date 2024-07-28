@@ -1,41 +1,44 @@
 # Introduction
 
-The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](https://ref.bringautofleet.com/r/protocol/v2/2.0.1/summary) for communication between a car and a cloud.
+The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](https://github.com/bringauto/fleet-protocol) for communication between a car and a cloud.
 
 It provides communication between
+
 1. Fleet Management - the application giving control over the car's mission to the end user,
 2. Autonomy device - the driving component of the car.
 
 For a detailed description of the inner workings, see the [Mission Module documentation](./docs/mission_module.md).
 
-# Identification and supported devices
+## Identification and supported devices
 
 Module number/ID: `1`.
 
-## Autonomy Device
+### Device list
 
-The device drives the car according to the current mission.
+| **Device Name** | **Device Type** | **Device Roles** | Comment                                                     |
+|-----------------|-----------------|------------------|-------------------------------------------------------------|
+| autonomy        | 0               | driving          | The device drives the car according the mission. |
 
-### Device identification
-
-- device type: 0
-- device role: `driving`
-
-# Dependencies
+## Dependencies
 
 - [CMakeLib](https://github.com/cmakelib/cmakelib)
 
-# Build
+If BRINGAUTO_SYSTEM_DEP=ON is set the dependencies described by [cmake/Dependencies.cmake](cmake/Dependencies.cmake)
+need to be installed as part of the system.
+
+## Build
 
 ```bash
 mkdir _build && cd _build
-cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] ..
+cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] [-DBRINGAUTO_SYSTEM_DEP=ON] ..
 make
+make install # in case of INSTALL feature on
+cpack # in case of PACKAGE feature on
 ```
 
-# Configuration
+## Configuration
 
-Configuration is required. Configuration file with example values:
+External Server Module Configuration is required as:
 
 ```json
 "config": {
@@ -54,4 +57,3 @@ Configuration is required. Configuration file with example values:
 - `api_key`: generated in Fleet Protocol HTTP API (script/new_admin.py)
 - `company_name`, `car_name`: used to identify the car in Fleet Protocol HTTP API
 - `max_requests_threshold_count`, `max_requests_threshold_period_ms`, `delay_after_threshold_reached_ms`, `retry_requests_delay_ms`: explained in [HTTP client README](./lib/fleet-v2-http-client/README.md)
-
