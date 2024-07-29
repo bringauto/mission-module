@@ -23,8 +23,7 @@ Module number/ID: `1`.
 
 - [CMakeLib](https://github.com/cmakelib/cmakelib)
 
-If BRINGAUTO_SYSTEM_DEP=ON is set the dependencies described by [cmake/Dependencies.cmake](cmake/Dependencies.cmake)
-need to be installed as part of the system.
+If BRINGAUTO_SYSTEM_DEP=ON is set the dependencies described by [cmake/Dependencies.cmake](cmake/Dependencies.cmake) needs to be installed as part of the system.
 
 ## Build
 
