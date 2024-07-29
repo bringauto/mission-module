@@ -54,7 +54,7 @@ Example:
     "fuel": 0.62
   },
   "nextStop": {
-    "name": "Ribnjak",
+    "name": "Train Station",
     "position": {
       "latitude": 45.815011,
       "longitude": 15.981919,
@@ -76,7 +76,7 @@ Example:
 {
   "finishedStops": [
     {
-      "name": "Trg Eugena Kvaternika",
+      "name": "Train Station",
       "position": {
         "latitude": 45.8144669,
         "longitude": 15.9965289,
@@ -84,7 +84,7 @@ Example:
       }
     },
     {
-      "name": "Vlaška",
+      "name": "Bus Station",
       "position": {
         "latitude": 45.8139306,
         "longitude": 15.9913147,
@@ -111,7 +111,7 @@ Example of command payload when the car received the mission:
   "action": "START",
   "stations": [
     {
-      "name": "Ribnjak",
+      "name": "Fish Market",
       "position": {
         "latitude": 45.815011,
         "longitude": 15.981919,
@@ -119,7 +119,7 @@ Example of command payload when the car received the mission:
       }
     },
     {
-      "name": "Trg hrvatskih velikana",
+      "name": "Bus Station",
       "position": {
         "latitude": 45.8120758,
         "longitude": 15.9837108,
@@ -127,7 +127,7 @@ Example of command payload when the car received the mission:
       }
     },
     {
-      "name": "Trg Eugena Kvaternika",
+      "name": "Train Station",
       "position": {
         "latitude": 45.8144669,
         "longitude": 15.9965289,
@@ -135,7 +135,7 @@ Example of command payload when the car received the mission:
       }
     }
   ],
-  "route": "Kvatrić"
+  "route": "FishMarketRoundTrip"
 }
 ```
 
