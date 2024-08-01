@@ -17,13 +17,13 @@ The Autonomy keeps in memory the NAME of the next stop (the `nextStop` in the ac
 
 ![activity diagram of autonomy receiving command](uml/exported_diagrams/command_activity_diagram.png "Activity diagram of the autonomy receiving command")
 
-The Autonomy device sends the status of the car to the Mission Module. The status contains a field `State` with the value corresponding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
+The Autonomy device sends the car status to the Mission Module. The status contains a field `State` with the value corresponding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
 
 # Messages
 
 ## Structure
 
-Below, the data passed in the messages used in the External Protocol are described. The data structure can be also found in the [.proto](../lib/protobuf-mission-module/) file.
+Below, the data passed in the messages used in the External Protocol are described. The data structure can also be found in the [.proto](../lib/protobuf-mission-module/) file.
 
 ## Status payload data
 

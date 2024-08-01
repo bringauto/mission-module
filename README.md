@@ -5,7 +5,7 @@ The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](h
 It provides communication between
 
 1. Autonomy device - the driving component of the car.
-2. Cloud - a component providing interface giving the end user to control the car's mission.
+2. Cloud - a component providing an interface giving the end user to control the car's mission.
 
 For a detailed description of the inner workings, see the [Mission Module documentation](./docs/mission_module.md).
 
@@ -15,15 +15,15 @@ Module number/ID: `1`.
 
 ### Device list
 
-| **Device Name** | **Device Type** | **Device Roles** | Comment                                                     |
-|-----------------|-----------------|------------------|-------------------------------------------------------------|
+| **Device Name** | **Device Type** | **Device Roles** | Comment                                          |
+| --------------- | --------------- | ---------------- | ------------------------------------------------ |
 | autonomy        | 0               | driving          | The device drives the car according the mission. |
 
 ## Dependencies
 
 - [CMakeLib](https://github.com/cmakelib/cmakelib)
 
-If BRINGAUTO_SYSTEM_DEP=ON is set the dependencies described by [cmake/Dependencies.cmake](cmake/Dependencies.cmake) needs to be installed as part of the system.
+If BRINGAUTO_SYSTEM_DEP=ON is set, the dependencies described by [cmake/Dependencies.cmake](cmake/Dependencies.cmake) need to be installed as part of the system.
 
 ## Build
 
