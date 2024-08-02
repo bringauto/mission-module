@@ -1,14 +1,12 @@
 #include <bringauto/json/SerializationUtils.hpp>
 #include <fleet_protocol/common_headers/general_error_codes.h>
 
-#include <string>
-
 namespace bringauto::json {
 
 using json = nlohmann::ordered_json;
 
 int SerializationUtils::json_to_buffer(json json, buffer *buffer) {
-	std::string tmp = to_string(json);
+	std::string tmp = json.dump();
 
 	if (allocate(buffer, tmp.size()) == NOT_OK) {
 		return NOT_OK;
