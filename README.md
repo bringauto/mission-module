@@ -1,12 +1,45 @@
-# Mission module
+# Introduction
 
-Module for missions. This module connects Fleet Management and autonomy.
+The Mission Module is a core module of the BringAuto in-house [Fleet Protocol](https://github.com/bringauto/fleet-protocol) for communication between a car and a cloud.
 
-### Config
+It provides communication between
 
-Some configuration is required when running this module. Example config:
+1. Autonomy device - the driving component of the car.
+2. Cloud - a component providing an interface giving the end user to control the car's mission.
 
+For a detailed description of the inner workings, see the [Mission Module documentation](./docs/mission_module.md).
+
+## Identification and supported devices
+
+Module number/ID: `1`.
+
+### Device list
+
+| **Device Name** | **Device Type** | **Device Roles** | Comment                                          |
+| --------------- | --------------- | ---------------- | ------------------------------------------------ |
+| autonomy        | 0               | driving          | The device drives the car according the mission. |
+
+## Dependencies
+
+- [CMakeLib](https://github.com/cmakelib/cmakelib)
+
+If BRINGAUTO_SYSTEM_DEP=ON is set, the dependencies described by [cmake/Dependencies.cmake](cmake/Dependencies.cmake) need to be installed as part of the system.
+
+## Build
+
+```bash
+mkdir _build && cd _build
+cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] [-DBRINGAUTO_SYSTEM_DEP=ON] ..
+make
+make install # in case of INSTALL feature on
+cpack # in case of PACKAGE feature on
 ```
+
+## Configuration
+
+External Server Module Configuration is required as:
+
+```json
 "config": {
     "api_url": "http://localhost:8080",
     "api_key": "StaticAccessKeyToBeUsedByDevelopersOnEtna",
@@ -19,19 +52,7 @@ Some configuration is required when running this module. Example config:
 }
 ```
 
-- api_url : URL of fleet http api ([project repository](https://gitlab.bringauto.com/bring-auto/fleet-protocol-v2/http-api/fleet-v2-http-api))
-- api_key : generated in fleet http api (script/new_admin.py)
-- company_name, car_name : used to identify car in fleet http api
-- max_requests_threshold_count, max_requests_threshold_period_ms, delay_after_threshold_reached_ms, retry_requests_delay_ms : explained in [http client README](./lib/fleet-v2-http-client/README.md)
-
-### Dependencies
-
-- [CMakeLib](https://github.com/cmakelib/cmakelib)
-
-### Build
-
-```
-mkdir _build && cd _build
-cmake -DCMAKE_BUILD_TYPE=Release [-DBRINGAUTO_INSTALL=ON] [-DBRINGAUTO_PACKAGE=ON] ..
-make
-```
+- `api_url`: URL of the Fleet Protocol HTTP API ([project repository](https://github.com/bringauto/fleet-protocol-http-api))
+- `api_key`: generated in Fleet Protocol HTTP API (script/new_admin.py)
+- `company_name`, `car_name`: used to identify the car in Fleet Protocol HTTP API
+- `max_requests_threshold_count`, `max_requests_threshold_period_ms`, `delay_after_threshold_reached_ms`, `retry_requests_delay_ms`: explained in [HTTP client README](./lib/fleet-v2-http-client/README.md)
