@@ -301,6 +301,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
         if(parse_commands) {
             std::string command_str = command->getPayload()->getData()->getJson().serialize();
+            std::cerr << "Received command: " << command_str << std::endl;
             if (bringauto::protobuf::ProtobufHelper::validateAutonomyCommand(command_str) != OK) {
                 return NOT_OK;
             }
