@@ -20,5 +20,7 @@ public:
 
 	static std::string autonomyStateToString(MissionModule::AutonomyStatus_State state);
 
+	static std::string autonomyActionToString(MissionModule::AutonomyCommand_Action action);
+
 };
 }

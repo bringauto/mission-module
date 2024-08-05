@@ -57,4 +57,16 @@ std::string JsonHelper::autonomyStateToString(MissionModule::AutonomyStatus_Stat
     }
 }
 
+std::string JsonHelper::autonomyActionToString(MissionModule::AutonomyCommand_Action action) {
+    switch (action) {
+        case MissionModule::AutonomyCommand_Action::AutonomyCommand_Action_STOP:
+            return "STOP";
+        case MissionModule::AutonomyCommand_Action::AutonomyCommand_Action_START:
+            return "DRIVE";
+        case MissionModule::AutonomyCommand_Action::AutonomyCommand_Action_NO_ACTION:
+        default:
+            return "NO_ACTION";
+    }
+}
+
 }
