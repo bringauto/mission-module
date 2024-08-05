@@ -18,7 +18,6 @@ OPTION(BRINGAUTO_SYSTEM_DEP "System dependencies are used if switched to ON, pac
 OPTION(BRINGAUTO_GET_PACKAGES_ONLY "Only download packages for this project" OFF)
 OPTION(FLEET_PROTOCOL_BUILD_MODULE_GATEWAY "Build shared library for module gateway " ON)
 OPTION(FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER "Build shared library for external server " ON)
-OPTION(SKIP_PROTOBUF "Handle commands and statuses only as JSON strings" OFF)
 
 IF (BRINGAUTO_PACKAGE)
     IF (NOT BRINGAUTO_INSTALL)
@@ -55,12 +54,8 @@ IF (NOT BRINGAUTO_SYSTEM_DEP)
     ENDIF ()
 ENDIF ()
 
-IF (SKIP_PROTOBUF)
-    ADD_COMPILE_DEFINITIONS(SKIP_PROTOBUF)
-    FIND_PACKAGE(nlohmann_json 3.10.5 REQUIRED)
-ELSE ()
-    FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
-ENDIF ()
+FIND_PACKAGE(nlohmann_json 3.10.5 REQUIRED)
+FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 
@@ -78,17 +73,12 @@ CMDEF_ADD_LIBRARY(
         VERSION ${MISSION_MODULE_VERSION}
 )
 
-IF (SKIP_PROTOBUF)
-    # JSON mission payload
-    ADD_LIBRARY(message_handler_lib ALIAS nlohmann_json::nlohmann_json)
-ELSE()
-    # Protobuf mission payload
-    SET(Protobuf_USE_STATIC_LIBS ON)
-    FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
-    ADD_LIBRARY(message_handler_lib STATIC ${protobuf_mission_cpp_files})
-    TARGET_INCLUDE_DIRECTORIES(message_handler_lib PUBLIC "lib/protobuf-mission-module/")
-    TARGET_LINK_LIBRARIES(message_handler_lib PUBLIC protobuf::libprotobuf)
-ENDIF()
+# Protobuf, JSON mission payload
+SET(Protobuf_USE_STATIC_LIBS ON)
+FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
+ADD_LIBRARY(message_handler_lib STATIC ${protobuf_mission_cpp_files})
+TARGET_INCLUDE_DIRECTORIES(message_handler_lib PUBLIC "lib/protobuf-mission-module/")
+TARGET_LINK_LIBRARIES(message_handler_lib PUBLIC protobuf::libprotobuf nlohmann_json::nlohmann_json)
 
 FILE(GLOB_RECURSE HEADERS "include/*")
 

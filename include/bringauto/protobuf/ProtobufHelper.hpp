@@ -1,6 +1,5 @@
 #pragma once
 
-#ifndef SKIP_PROTOBUF
 #include <MissionModule.pb.h>
 #include <fleet_protocol/common_headers/memory_management.h>
 
@@ -9,13 +8,12 @@ class ProtobufHelper {
 public:
 	static int serializeProtobufMessageToBuffer(struct buffer* message, const google::protobuf::Message &protobufMessage);
 
-	static MissionModule::AutonomyStatus parseAutonomyStatus(struct buffer status);
+	static int validateAutonomyStatus(std::string status);
 
-	static MissionModule::AutonomyCommand parseAutonomyCommand(struct buffer command);
+	static int validateAutonomyCommand(std::string command);
 
-	static MissionModule::AutonomyError parseAutonomyError(struct buffer errorMessage);
+	static int validateAutonomyError(std::string errorMessage);
 
 
 };
 }
-#endif

@@ -1,7 +1,8 @@
-#ifndef SKIP_PROTOBUF
 #include <fleet_protocol/common_headers/general_error_codes.h>
 
 #include <bringauto/protobuf/ProtobufHelper.hpp>
+
+#include <google/protobuf/util/json_util.h>
 
 namespace bringauto::protobuf {
 int ProtobufHelper::serializeProtobufMessageToBuffer(struct buffer* message, const google::protobuf::Message &protobufMessage) {
@@ -12,22 +13,36 @@ int ProtobufHelper::serializeProtobufMessageToBuffer(struct buffer* message, con
 	return NOT_OK;
 }
 
-MissionModule::AutonomyStatus ProtobufHelper::parseAutonomyStatus(struct buffer status) {
-	MissionModule::AutonomyStatus autonomyStatus;
-	autonomyStatus.ParseFromArray(status.data, status.size_in_bytes);
-	return autonomyStatus;
+int ProtobufHelper::validateAutonomyStatus(std::string status) {
+	MissionModule::AutonomyStatus autonomyStatus {};
+	const auto parse_status = google::protobuf::util::JsonStringToMessage(
+		status, &autonomyStatus
+	);
+	if(!parse_status.ok()) {
+		return NOT_OK;
+	}
+	return OK;
 }
 
-MissionModule::AutonomyCommand ProtobufHelper::parseAutonomyCommand(struct buffer command) {
-	MissionModule::AutonomyCommand autonomyCommand;
-	autonomyCommand.ParseFromArray(command.data, command.size_in_bytes);
-	return autonomyCommand;
+int ProtobufHelper::validateAutonomyCommand(std::string command) {
+	MissionModule::AutonomyCommand autonomyCommand {};
+	const auto parse_status = google::protobuf::util::JsonStringToMessage(
+		command, &autonomyCommand
+	);
+	if(!parse_status.ok()) {
+		return NOT_OK;
+	}
+	return OK;
 }
 
-MissionModule::AutonomyError ProtobufHelper::parseAutonomyError(struct buffer errorMessage) {
-	MissionModule::AutonomyError autonomyError;
-	autonomyError.ParseFromArray(errorMessage.data, errorMessage.size_in_bytes);
-	return autonomyError;
+int ProtobufHelper::validateAutonomyError(std::string errorMessage) {
+	MissionModule::AutonomyError autonomyError {};
+	const auto parse_status = google::protobuf::util::JsonStringToMessage(
+		errorMessage, &autonomyError
+	);
+	if(!parse_status.ok()) {
+		return NOT_OK;
+	}
+	return OK;
 }
 }
-#endif
