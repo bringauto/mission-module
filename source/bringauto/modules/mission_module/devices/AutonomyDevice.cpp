@@ -90,9 +90,11 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 }
 
 int AutonomyDevice::generate_first_command(struct buffer *default_command) {
-	MissionModule::AutonomyCommand command {};
-	command.set_action(MissionModule::AutonomyCommand_Action_NO_ACTION);
-	if (protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(default_command, command) != OK) {
+	json command {};
+	command["action"] = ba_json::JsonHelper::autonomyActionToString(MissionModule::AutonomyCommand_Action_NO_ACTION);
+	command["route"] = "";
+	command["stops"] = json::array();
+	if (ba_json::JsonHelper::jsonToBuffer(default_command, command) != OK) {
 		return NOT_OK;
 	}
 	return OK;
