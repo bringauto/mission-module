@@ -105,7 +105,7 @@ int AutonomyDevice::status_data_valid(const struct buffer status) {
 	if (ba_json::JsonHelper::bufferToJson(&status_json, status) != OK) {
 		return NOT_OK;
 	}
-	if (protobuf::ProtobufHelper::validateAutonomyStatus(status_json.dump()) != OK) {
+	if (protobuf::ProtobufHelper::validateAutonomyStatus(nlohmann::to_string(status_json)) != OK) {
 		return NOT_OK;
 	}
 	return OK;
@@ -116,7 +116,7 @@ int AutonomyDevice::command_data_valid(const struct buffer command) {
 	if (ba_json::JsonHelper::bufferToJson(&command_json, command) != OK) {
 		return NOT_OK;
 	}
-	if (protobuf::ProtobufHelper::validateAutonomyCommand(command_json.dump()) != OK) {
+	if (protobuf::ProtobufHelper::validateAutonomyCommand(nlohmann::to_string(command_json)) != OK) {
 		return NOT_OK;
 	}
 	return OK;

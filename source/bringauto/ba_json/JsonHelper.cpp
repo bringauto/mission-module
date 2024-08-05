@@ -18,7 +18,7 @@ int JsonHelper::bufferToJson(json* json, const buffer& buffer) {
 }
 
 int JsonHelper::jsonToBuffer(buffer *buffer, const json& json) {
-	std::string tmp = json.dump();
+	std::string tmp = nlohmann::to_string(json);
 	if (allocate(buffer, tmp.size()) == NOT_OK) {
 		return NOT_OK;
 	}
