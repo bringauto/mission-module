@@ -11,7 +11,6 @@
 
 namespace bringauto::modules::mission_module::devices {
 
-namespace bamm = bringauto::modules::mission_module;
 using json = nlohmann::ordered_json;
 
 std::map<unsigned int, std::chrono::milliseconds> AutonomyDevice::last_sent_status_timestamps_ {};
@@ -27,10 +26,12 @@ int AutonomyDevice::send_status_condition(const struct buffer current_status, co
 	if (current_status_json["state"] != new_status_json["state"] ||
 		current_status_json["nextStop"] != new_status_json["nextStop"]) {
 		return OK;
-	} else if (new_status_json["telemetry"]["speed"] >= bamm::Constants::status_speed_threshold) {
+	}
+
+	if (new_status_json["telemetry"]["speed"] >= Constants::status_speed_threshold) {
 		auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		if (last_sent_status_timestamps_[device_type] + bamm::Constants::status_sending_period < current_time) {
+		if (last_sent_status_timestamps_[device_type] + Constants::status_sending_period < current_time) {
 			last_sent_status_timestamps_[device_type] = current_time;
 			return OK;
 		}
@@ -51,7 +52,7 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 
 	if (ba_json::JsonHelper::stringToAutonomyState(current_status_json["state"]) == MissionModule::AutonomyStatus_State_DRIVE &&
 		ba_json::JsonHelper::stringToAutonomyState(new_status_json["state"]) == MissionModule::AutonomyStatus_State_IN_STOP) {
-		if (current_command_json["stops"].size() > 0) {
+		if (!current_command_json["stops"].empty()) {
 			current_command_json["stops"].erase(current_command_json["stops"].begin());
 		}
 	}
@@ -77,7 +78,7 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 	}
 
 	if (status_json["state"] == ba_json::JsonHelper::autonomyStateToString(MissionModule::AutonomyStatus_State_IN_STOP)) {
-		if (error_json["finishedStops"].size() > 0) {
+		if (!error_json["finishedStops"].empty()) {
 			if (error_json["finishedStops"][error_json["finishedStops"].size() - 1] != status_json["nextStop"]) {
 				error_json["finishedStops"].push_back(status_json["nextStop"]);
 			}
