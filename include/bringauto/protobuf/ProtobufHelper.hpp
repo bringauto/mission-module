@@ -8,11 +8,11 @@ class ProtobufHelper {
 public:
 	static int serializeProtobufMessageToBuffer(struct buffer* message, const google::protobuf::Message &protobufMessage);
 
-	static int validateAutonomyStatus(std::string status);
+	static int validateAutonomyStatus(const std::string &status);
 
-	static int validateAutonomyCommand(std::string command);
+	static int validateAutonomyCommand(const std::string &command);
 
-	static int validateAutonomyError(std::string errorMessage);
+	static int validateAutonomyError(const std::string &errorMessage);
 
 
 };

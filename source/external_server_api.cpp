@@ -10,8 +10,6 @@
  
 #include <vector>
 #include <cstring>
-#include <iostream>
-#include <condition_variable>
 #include <regex>
 
 
@@ -19,7 +17,7 @@ namespace bamm = bringauto::modules::mission_module;
 
 void *init(const config config_data) {
     auto *context = new bamm::Context {};
-    bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
+    const bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
     std::string api_url;
     std::string api_key;
     std::string company_name;
@@ -29,75 +27,75 @@ void *init(const config config_data) {
     int delay_after_threshold_reached_ms;
     int retry_requests_delay_ms;
 
-    for (auto i = config.cbegin(); i != config.cend(); i++) {
-        if (i->first == "api_url") {
-            if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
+    for (const auto & i : config) {
+        if (i.first == "api_url") {
+            if (!std::regex_match(i.second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
                 delete context;
                 return nullptr;
             }
-            api_url = i->second;
+            api_url = i.second;
         }
-        else if (i->first == "api_key") {
-            if (i->second.empty()) {
+        else if (i.first == "api_key") {
+            if (i.second.empty()) {
                 delete context;
                 return nullptr;
             }
-            api_key = i->second;
+            api_key = i.second;
         }
-        else if (i->first == "company_name") {
-            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
+        else if (i.first == "company_name") {
+            if (!std::regex_match(i.second, std::regex("^[a-z0-9_]*$")) || i.second.empty()) {
                 delete context;
                 return nullptr;
             }
-            company_name = i->second;
+            company_name = i.second;
         }
-        else if (i->first == "car_name") {
-            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
+        else if (i.first == "car_name") {
+            if (!std::regex_match(i.second, std::regex("^[a-z0-9_]*$")) || i.second.empty()) {
                 delete context;
                 return nullptr;
             }
-            car_name = i->second;
+            car_name = i.second;
         }
-        else if (i->first == "max_requests_threshold_count") {
+        else if (i.first == "max_requests_threshold_count") {
             try {
-                max_requests_threshold_count = std::stoi(i->second);
-                if (max_requests_threshold_count < 0 || i->second.empty()) {
+                max_requests_threshold_count = std::stoi(i.second);
+                if (max_requests_threshold_count < 0 || i.second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (...) {
                 delete context;
                 return nullptr;
             }
         }
-        else if (i->first == "max_requests_threshold_period_ms") {
+        else if (i.first == "max_requests_threshold_period_ms") {
             try {
-                max_requests_threshold_period_ms = std::stoi(i->second);
-                if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
+                max_requests_threshold_period_ms = std::stoi(i.second);
+                if (max_requests_threshold_period_ms < 0 || i.second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (...) {
                 delete context;
                 return nullptr;
             }
         }
-        else if (i->first == "delay_after_threshold_reached_ms") {
+        else if (i.first == "delay_after_threshold_reached_ms") {
             try {
-                delay_after_threshold_reached_ms = std::stoi(i->second);
-                if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
+                delay_after_threshold_reached_ms = std::stoi(i.second);
+                if (delay_after_threshold_reached_ms < 0 || i.second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (...) {
                 delete context;
                 return nullptr;
             }
         }
-        else if (i->first == "retry_requests_delay_ms") {
+        else if (i.first == "retry_requests_delay_ms") {
             try {
-                retry_requests_delay_ms = std::stoi(i->second);
-                if (retry_requests_delay_ms < 0 || i->second.empty()) {
+                retry_requests_delay_ms = std::stoi(i.second);
+                if (retry_requests_delay_ms < 0 || i.second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (...) {
                 delete context;
                 return nullptr;
             }
@@ -130,7 +128,7 @@ int destroy(void **context) {
     if(*context == nullptr){
         return NOT_OK;
     }
-    auto con = reinterpret_cast<struct bamm::Context **> (context);
+    const auto con = reinterpret_cast<struct bamm::Context **> (context);
 
     delete *con;
     *con = nullptr;
@@ -142,17 +140,17 @@ int forward_status(const buffer device_status, const device_identification devic
         return CONTEXT_INCORRECT;
     }
     
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
-        bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
-        auto device_status_str = std::string(device_status_bas.getStringView());
+        const bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
+        const auto device_status_str = std::string(device_status_bas.getStringView());
         if (bringauto::protobuf::ProtobufHelper::validateAutonomyStatus(device_status_str) != OK) {
             return NOT_OK;
         }
 
-        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
-        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
             bringauto::fleet_protocol::cxx::DeviceID(
                 device.module,
@@ -165,7 +163,7 @@ int forward_status(const buffer device_status, const device_identification devic
 
         try {
             con->fleet_api_client->sendStatus(device_status_str);
-        } catch (std::exception& e) {
+        } catch (...) {
             return NOT_OK;
         }
 
@@ -180,17 +178,17 @@ int forward_error_message(const buffer error_msg, const device_identification de
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
-        bringauto::fleet_protocol::cxx::BufferAsString error_msg_bas(&error_msg);
-        auto error_msg_str = std::string(error_msg_bas.getStringView());
+        const bringauto::fleet_protocol::cxx::BufferAsString error_msg_bas(&error_msg);
+        const auto error_msg_str = std::string(error_msg_bas.getStringView());
         if (bringauto::protobuf::ProtobufHelper::validateAutonomyError(error_msg_str) != OK) {
             return NOT_OK;
         }
 
-        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
-        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
             bringauto::fleet_protocol::cxx::DeviceID(
                 device.module,
@@ -205,7 +203,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
             con->fleet_api_client->sendStatus(
                 error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
             );
-        } catch (std::exception& e) {
+        } catch (...) {
             return NOT_OK;
         }
 
@@ -220,7 +218,7 @@ int device_disconnected(const int disconnect_type, const device_identification d
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
     const std::string_view device_device_role(static_cast<char*> (device.device_role.data), device.device_role.size_in_bytes);
     const std::string_view device_device_name(static_cast<char*> (device.device_name.data), device.device_name.size_in_bytes);
@@ -248,13 +246,13 @@ int device_connected(const device_identification device, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
-    device_identification new_device;
-
-    new_device.module = device.module;
-    new_device.device_type = device.device_type;
-    new_device.priority = device.priority;
+    device_identification new_device {
+        .module = device.module,
+        .device_type = device.device_type,
+        .priority = device.priority
+    };
 
     if(allocate(&new_device.device_role, device.device_role.size_in_bytes) != OK) {
         return NOT_OK;
@@ -275,10 +273,10 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
     std::unique_lock lock(con->mutex);
     std::vector<std::shared_ptr<org::openapitools::client::model::Message>> commands;
-    bool parse_commands = con->last_command_timestamp != 0;
+    const bool parse_commands = con->last_command_timestamp != 0;
     
     try {
         commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
@@ -287,12 +285,12 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     }
 
     bool received_no_commands = true;
-    for(auto command : commands) {
+    for(const auto &command : commands) {
         if(command->getTimestamp() > con->last_command_timestamp) {
             con->last_command_timestamp = command->getTimestamp();
         }
 
-        auto received_device_id = command->getDeviceId();
+        const auto received_device_id = command->getDeviceId();
         if(received_device_id->getModuleId() == bamm::MISSION_MODULE_NUMBER) {
             received_no_commands = false;
         } else {
@@ -330,12 +328,12 @@ int pop_command(buffer* command, device_identification* device, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
-    auto command_object = std::get<0>(con->command_vector.back());
+    const auto con = static_cast<struct bamm::Context *> (context);
+    const auto command_object = std::get<0>(con->command_vector.back());
 
     bringauto::fleet_protocol::cxx::StringAsBuffer::createBufferAndCopyData(command, command_object);
 
-    auto& device_id = std::get<1>(con->command_vector.back());
+    const auto& device_id = std::get<1>(con->command_vector.back());
 
     device->module = device_id.getDeviceId().module;
     device->device_type = device_id.getDeviceId().device_type;

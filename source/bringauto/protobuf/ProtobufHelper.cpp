@@ -6,14 +6,14 @@
 
 namespace bringauto::protobuf {
 int ProtobufHelper::serializeProtobufMessageToBuffer(struct buffer* message, const google::protobuf::Message &protobufMessage) {
-	if ((allocate(message, protobufMessage.ByteSizeLong())) == OK) {
-		protobufMessage.SerializeToArray(message->data, (int)message->size_in_bytes);
+	if (allocate(message, protobufMessage.ByteSizeLong()) == OK) {
+		protobufMessage.SerializeToArray(message->data, static_cast<int>(message->size_in_bytes));
 		return OK;
 	}
 	return NOT_OK;
 }
 
-int ProtobufHelper::validateAutonomyStatus(std::string status) {
+int ProtobufHelper::validateAutonomyStatus(const std::string &status) {
 	MissionModule::AutonomyStatus autonomyStatus {};
 	const auto parse_status = google::protobuf::util::JsonStringToMessage(
 		status, &autonomyStatus
@@ -24,7 +24,7 @@ int ProtobufHelper::validateAutonomyStatus(std::string status) {
 	return OK;
 }
 
-int ProtobufHelper::validateAutonomyCommand(std::string command) {
+int ProtobufHelper::validateAutonomyCommand(const std::string &command) {
 	MissionModule::AutonomyCommand autonomyCommand {};
 	const auto parse_status = google::protobuf::util::JsonStringToMessage(
 		command, &autonomyCommand
@@ -35,7 +35,7 @@ int ProtobufHelper::validateAutonomyCommand(std::string command) {
 	return OK;
 }
 
-int ProtobufHelper::validateAutonomyError(std::string errorMessage) {
+int ProtobufHelper::validateAutonomyError(const std::string &errorMessage) {
 	MissionModule::AutonomyError autonomyError {};
 	const auto parse_status = google::protobuf::util::JsonStringToMessage(
 		errorMessage, &autonomyError

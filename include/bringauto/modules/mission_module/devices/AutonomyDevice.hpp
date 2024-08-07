@@ -1,6 +1,5 @@
 #pragma once
 
-#include <MissionModule.pb.h>
 #include <fleet_protocol/common_headers/memory_management.h>
 
 #include <chrono>
