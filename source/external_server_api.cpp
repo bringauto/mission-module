@@ -27,39 +27,39 @@ void *init(const config config_data) {
     int delay_after_threshold_reached_ms;
     int retry_requests_delay_ms;
 
-    for (const auto & i : config) {
-        if (i.first == "api_url") {
-            if (!std::regex_match(i.second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
+    for (auto i = config.cbegin(); i != config.cend(); ++i) {
+        if (i->first == "api_url") {
+            if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
                 delete context;
                 return nullptr;
             }
-            api_url = i.second;
+            api_url = i->second;
         }
-        else if (i.first == "api_key") {
-            if (i.second.empty()) {
+        else if (i->first == "api_key") {
+            if (i->second.empty()) {
                 delete context;
                 return nullptr;
             }
-            api_key = i.second;
+            api_key = i->second;
         }
-        else if (i.first == "company_name") {
-            if (!std::regex_match(i.second, std::regex("^[a-z0-9_]*$")) || i.second.empty()) {
+        else if (i->first == "company_name") {
+            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
-            company_name = i.second;
+            company_name = i->second;
         }
-        else if (i.first == "car_name") {
-            if (!std::regex_match(i.second, std::regex("^[a-z0-9_]*$")) || i.second.empty()) {
+        else if (i->first == "car_name") {
+            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
-            car_name = i.second;
+            car_name = i->second;
         }
-        else if (i.first == "max_requests_threshold_count") {
+        else if (i->first == "max_requests_threshold_count") {
             try {
-                max_requests_threshold_count = std::stoi(i.second);
-                if (max_requests_threshold_count < 0 || i.second.empty()) {
+                max_requests_threshold_count = std::stoi(i->second);
+                if (max_requests_threshold_count < 0 || i->second.empty()) {
                     throw std::exception();
                 }
             } catch (...) {
@@ -67,10 +67,10 @@ void *init(const config config_data) {
                 return nullptr;
             }
         }
-        else if (i.first == "max_requests_threshold_period_ms") {
+        else if (i->first == "max_requests_threshold_period_ms") {
             try {
-                max_requests_threshold_period_ms = std::stoi(i.second);
-                if (max_requests_threshold_period_ms < 0 || i.second.empty()) {
+                max_requests_threshold_period_ms = std::stoi(i->second);
+                if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
             } catch (...) {
@@ -78,10 +78,10 @@ void *init(const config config_data) {
                 return nullptr;
             }
         }
-        else if (i.first == "delay_after_threshold_reached_ms") {
+        else if (i->first == "delay_after_threshold_reached_ms") {
             try {
-                delay_after_threshold_reached_ms = std::stoi(i.second);
-                if (delay_after_threshold_reached_ms < 0 || i.second.empty()) {
+                delay_after_threshold_reached_ms = std::stoi(i->second);
+                if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
             } catch (...) {
@@ -89,10 +89,10 @@ void *init(const config config_data) {
                 return nullptr;
             }
         }
-        else if (i.first == "retry_requests_delay_ms") {
+        else if (i->first == "retry_requests_delay_ms") {
             try {
-                retry_requests_delay_ms = std::stoi(i.second);
-                if (retry_requests_delay_ms < 0 || i.second.empty()) {
+                retry_requests_delay_ms = std::stoi(i->second);
+                if (retry_requests_delay_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
             } catch (...) {
