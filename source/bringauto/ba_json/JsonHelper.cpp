@@ -8,7 +8,7 @@ namespace bringauto::ba_json {
 using json = nlohmann::ordered_json;
 
 int JsonHelper::bufferToJson(json* json, const buffer& buffer) {
-    char *buffer_data = static_cast<char*> (buffer.data);
+    const auto buffer_data = static_cast<char*> (buffer.data);
     try {
         *json = json::parse(buffer_data, buffer_data + buffer.size_in_bytes);
     } catch (json::parse_error &) {
@@ -18,7 +18,7 @@ int JsonHelper::bufferToJson(json* json, const buffer& buffer) {
 }
 
 int JsonHelper::jsonToBuffer(buffer *buffer, const json& json) {
-	std::string tmp = nlohmann::to_string(json);
+	const std::string tmp = nlohmann::to_string(json);
 	if (allocate(buffer, tmp.size()) == NOT_OK) {
 		return NOT_OK;
 	}
@@ -41,7 +41,7 @@ MissionModule::AutonomyStatus_State JsonHelper::stringToAutonomyState(const std:
 	return MissionModule::AutonomyStatus_State::AutonomyStatus_State_ERROR;
 }
 
-std::string JsonHelper::autonomyStateToString(MissionModule::AutonomyStatus_State state) {
+std::string JsonHelper::autonomyStateToString(const MissionModule::AutonomyStatus_State state) {
     switch (state) {
         case MissionModule::AutonomyStatus_State::AutonomyStatus_State_IDLE:
             return "IDLE";
@@ -57,7 +57,7 @@ std::string JsonHelper::autonomyStateToString(MissionModule::AutonomyStatus_Stat
     }
 }
 
-std::string JsonHelper::autonomyActionToString(MissionModule::AutonomyCommand_Action action) {
+std::string JsonHelper::autonomyActionToString(const MissionModule::AutonomyCommand_Action action) {
     switch (action) {
         case MissionModule::AutonomyCommand_Action::AutonomyCommand_Action_STOP:
             return "STOP";
