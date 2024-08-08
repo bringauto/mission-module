@@ -7,10 +7,10 @@ namespace bringauto::ba_json {
 
 using json = nlohmann::ordered_json;
 
-int JsonHelper::bufferToJson(json* json, const buffer& buffer) {
+int JsonHelper::bufferToJson(json& json, const buffer& buffer) {
     const auto buffer_data = static_cast<char*> (buffer.data);
     try {
-        *json = json::parse(buffer_data, buffer_data + buffer.size_in_bytes);
+        json = json::parse(buffer_data, buffer_data + buffer.size_in_bytes);
     } catch (json::parse_error &) {
         return NOT_OK;
     }

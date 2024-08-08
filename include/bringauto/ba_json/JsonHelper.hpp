@@ -12,7 +12,7 @@ using json = nlohmann::ordered_json;
 
 class JsonHelper {
 public:
-	static int bufferToJson(json* json, const buffer& buffer);
+	static int bufferToJson(json& json, const buffer& buffer);
 
 	static int jsonToBuffer(buffer* buffer, const json& json);
 
