@@ -102,7 +102,7 @@ int AutonomyDevice::generate_first_command(struct buffer *default_command) {
 }
 
 int AutonomyDevice::status_data_valid(const struct buffer status) {
-	json status_json;
+	json status_json {};
 	if (ba_json::JsonHelper::bufferToJson(&status_json, status) != OK) {
 		return NOT_OK;
 	}
@@ -113,11 +113,14 @@ int AutonomyDevice::status_data_valid(const struct buffer status) {
 }
 
 int AutonomyDevice::command_data_valid(const struct buffer command) {
-	json command_json;
+	json command_json {};
 	if (ba_json::JsonHelper::bufferToJson(&command_json, command) != OK) {
+		std::cerr << "Failed to parse command json" << std::endl;
 		return NOT_OK;
 	}
+	std::cerr << command_json.dump() << std::endl;
 	if (protobuf::ProtobufHelper::validateAutonomyCommand(nlohmann::to_string(command_json)) != OK) {
+		std::cerr << "Failed to validate command" << std::endl;
 		return NOT_OK;
 	}
 	return OK;
