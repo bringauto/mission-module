@@ -58,6 +58,7 @@ FIND_PACKAGE(nlohmann_json 3.10.5 REQUIRED)
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
+FIND_PACKAGE(libbringauto_logger 2.0.0 REQUIRED)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
     FIND_PACKAGE(fleet-http-client-shared 1.5.0 REQUIRED)
@@ -95,6 +96,7 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         fleet-protocol-interface::common-headers-interface
         fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
         message_handler_lib
+        bringauto_logger::bringauto_logger
 )
 
 IF (FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)
