@@ -2,11 +2,11 @@
 #include <bringauto/modules/mission_module/Context.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
+#include <bringauto/protobuf/ProtobufHelper.hpp>
 #include <bringauto/fleet_protocol/cxx/DeviceID.hpp>
 #include <bringauto/fleet_protocol/cxx/KeyValueConfig.hpp>
 #include <bringauto/fleet_protocol/cxx/StringAsBuffer.hpp>
 #include <bringauto/fleet_protocol/http_client/FleetApiClient.hpp>
-#include <bringauto/protobuf/ProtobufHelper.hpp>
  
 #include <vector>
 #include <cstring>
