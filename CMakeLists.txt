@@ -95,7 +95,6 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         fleet-protocol-interface::common-headers-interface
         fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
         message_handler_lib
-        bringauto_logger::bringauto_logger
 )
 
 IF (FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)
