@@ -26,7 +26,7 @@ int JsonHelper::jsonToBuffer(buffer *buffer, const json& json) {
 	return OK;
 }
 
-MissionModule::AutonomyStatus_State JsonHelper::stringToAutonomyState(const std::string &state) {
+MissionModule::AutonomyStatus_State JsonHelper::stringToAutonomyState(const std::string_view &state) {
 	if (state == "IDLE") {
 		return MissionModule::AutonomyStatus_State::AutonomyStatus_State_IDLE;
 	} else if (state == "DRIVE") {
@@ -51,7 +51,6 @@ std::string JsonHelper::autonomyStateToString(const MissionModule::AutonomyStatu
             return "IN_STOP";
         case MissionModule::AutonomyStatus_State::AutonomyStatus_State_OBSTACLE:
             return "OBSTACLE";
-        case MissionModule::AutonomyStatus_State::AutonomyStatus_State_ERROR:
         default:
             return "ERROR";
     }
@@ -63,7 +62,6 @@ std::string JsonHelper::autonomyActionToString(const MissionModule::AutonomyComm
             return "STOP";
         case MissionModule::AutonomyCommand_Action::AutonomyCommand_Action_START:
             return "DRIVE";
-        case MissionModule::AutonomyCommand_Action::AutonomyCommand_Action_NO_ACTION:
         default:
             return "NO_ACTION";
     }
