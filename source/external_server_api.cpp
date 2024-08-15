@@ -60,9 +60,9 @@ void *init(const config config_data) {
             try {
                 max_requests_threshold_count = std::stoi(i->second);
                 if (max_requests_threshold_count < 0 || i->second.empty()) {
-                    throw std::invalid_argument("max_requests_threshold_count must be a positive integer");
+                    throw std::exception();
                 }
-            } catch (std::invalid_argument&) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -71,9 +71,9 @@ void *init(const config config_data) {
             try {
                 max_requests_threshold_period_ms = std::stoi(i->second);
                 if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
-                    throw std::invalid_argument("max_requests_threshold_period_ms must be a positive integer");
+                    throw std::exception();
                 }
-            } catch (std::invalid_argument&) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -82,9 +82,9 @@ void *init(const config config_data) {
             try {
                 delay_after_threshold_reached_ms = std::stoi(i->second);
                 if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
-                    throw std::invalid_argument("delay_after_threshold_reached_ms must be a positive integer");
+                    throw std::exception();
                 }
-            } catch (std::invalid_argument&) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -93,9 +93,9 @@ void *init(const config config_data) {
             try {
                 retry_requests_delay_ms = std::stoi(i->second);
                 if (retry_requests_delay_ms < 0 || i->second.empty()) {
-                    throw std::invalid_argument("retry_requests_delay_ms must be a positive integer");
+                    throw std::exception();
                 }
-            } catch (std::invalid_argument&) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -163,7 +163,7 @@ int forward_status(const buffer device_status, const device_identification devic
 
         try {
             con->fleet_api_client->sendStatus(device_status_str);
-        } catch (org::openapitools::client::api::ApiException&) {
+        } catch (std::exception&) {
             return NOT_OK;
         }
 
@@ -203,7 +203,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
             con->fleet_api_client->sendStatus(
                 error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
             );
-        } catch (org::openapitools::client::api::ApiException&) {
+        } catch (std::exception&) {
             return NOT_OK;
         }
 
@@ -280,7 +280,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     
     try {
         commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
-    } catch (org::openapitools::client::api::ApiException&) {
+    } catch (std::exception&) {
         return TIMEOUT_OCCURRED;
     }
 
