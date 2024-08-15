@@ -7,12 +7,9 @@
 #include <bringauto/fleet_protocol/cxx/KeyValueConfig.hpp>
 #include <bringauto/fleet_protocol/cxx/StringAsBuffer.hpp>
 #include <bringauto/fleet_protocol/http_client/FleetApiClient.hpp>
-#include <google/protobuf/util/json_util.h>
  
 #include <vector>
 #include <cstring>
-#include <iostream>
-#include <condition_variable>
 #include <regex>
 
 
@@ -20,17 +17,17 @@ namespace bamm = bringauto::modules::mission_module;
 
 void *init(const config config_data) {
     auto *context = new bamm::Context {};
-    bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
-    std::string api_url;
-    std::string api_key;
-    std::string company_name;
-    std::string car_name;
-    int max_requests_threshold_count;
-    int max_requests_threshold_period_ms;
-    int delay_after_threshold_reached_ms;
-    int retry_requests_delay_ms;
+    const bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
+    std::string api_url {};
+    std::string api_key {};
+    std::string company_name {};
+    std::string car_name {};
+    int max_requests_threshold_count {};
+    int max_requests_threshold_period_ms {};
+    int delay_after_threshold_reached_ms {};
+    int retry_requests_delay_ms {};
 
-    for (auto i = config.cbegin(); i != config.cend(); i++) {
+    for (auto i = config.cbegin(); i != config.cend(); ++i) {
         if (i->first == "api_url") {
             if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
                 delete context;
@@ -65,7 +62,7 @@ void *init(const config config_data) {
                 if (max_requests_threshold_count < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -76,7 +73,7 @@ void *init(const config config_data) {
                 if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -87,7 +84,7 @@ void *init(const config config_data) {
                 if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -98,7 +95,7 @@ void *init(const config config_data) {
                 if (retry_requests_delay_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (std::exception& e) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -131,7 +128,7 @@ int destroy(void **context) {
     if(*context == nullptr){
         return NOT_OK;
     }
-    auto con = reinterpret_cast<struct bamm::Context **> (context);
+    const auto con = reinterpret_cast<struct bamm::Context **> (context);
 
     delete *con;
     *con = nullptr;
@@ -143,17 +140,17 @@ int forward_status(const buffer device_status, const device_identification devic
         return CONTEXT_INCORRECT;
     }
     
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
-        std::string device_status_str;
-        auto device_status_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyStatus(device_status);
-        auto protobuf_options = google::protobuf::util::JsonPrintOptions();
-        protobuf_options.always_print_primitive_fields = true;
-        google::protobuf::util::MessageToJsonString(device_status_parsed, &device_status_str, protobuf_options);
-        
-        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
-        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
+        const auto device_status_str = std::string(device_status_bas.getStringView());
+        if (bringauto::protobuf::ProtobufHelper::validateAutonomyStatus(device_status_str) != OK) {
+            return NOT_OK;
+        }
+
+        const bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
             bringauto::fleet_protocol::cxx::DeviceID(
                 device.module,
@@ -166,7 +163,7 @@ int forward_status(const buffer device_status, const device_identification devic
 
         try {
             con->fleet_api_client->sendStatus(device_status_str);
-        } catch (std::exception& e) {
+        } catch (std::exception&) {
             return NOT_OK;
         }
 
@@ -181,17 +178,17 @@ int forward_error_message(const buffer error_msg, const device_identification de
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
-        std::string error_msg_str;
-        auto error_msg_parsed = bringauto::protobuf::ProtobufHelper::parseAutonomyError(error_msg);
-        auto protobuf_options = google::protobuf::util::JsonPrintOptions();
-        protobuf_options.always_print_primitive_fields = true;
-        google::protobuf::util::MessageToJsonString(error_msg_parsed, &error_msg_str, protobuf_options);
+        const bringauto::fleet_protocol::cxx::BufferAsString error_msg_bas(&error_msg);
+        const auto error_msg_str = std::string(error_msg_bas.getStringView());
+        if (bringauto::protobuf::ProtobufHelper::validateAutonomyError(error_msg_str) != OK) {
+            return NOT_OK;
+        }
 
-        bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
-        bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
             bringauto::fleet_protocol::cxx::DeviceID(
                 device.module,
@@ -206,7 +203,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
             con->fleet_api_client->sendStatus(
                 error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
             );
-        } catch (std::exception& e) {
+        } catch (std::exception&) {
             return NOT_OK;
         }
 
@@ -221,17 +218,17 @@ int device_disconnected(const int disconnect_type, const device_identification d
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
     const std::string_view device_device_role(static_cast<char*> (device.device_role.data), device.device_role.size_in_bytes);
     const std::string_view device_device_name(static_cast<char*> (device.device_name.data), device.device_name.size_in_bytes);
 
-    for(auto it = con->devices.begin(); it != con->devices.end(); it++) {
+    for(auto it = con->devices.begin(); it != con->devices.end(); ++it) {
         const std::string_view it_device_role(static_cast<char*> (it->device_role.data), it->device_role.size_in_bytes);
         const std::string_view it_device_name(static_cast<char*> (it->device_name.data), it->device_name.size_in_bytes);
 
-        bool device_is_present = it->device_type == device.device_type && it_device_role == device_device_role && it_device_name == device_device_name
-                                 && it->module == device.module && it->priority == device.priority;
+        const bool device_is_present = it->device_type == device.device_type && it_device_role == device_device_role &&
+            it_device_name == device_device_name && it->module == device.module && it->priority == device.priority;
 
         if(device_is_present) {
             deallocate(&it->device_role);
@@ -249,13 +246,13 @@ int device_connected(const device_identification device, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
 
-    device_identification new_device;
-
-    new_device.module = device.module;
-    new_device.device_type = device.device_type;
-    new_device.priority = device.priority;
+    device_identification new_device {
+        .module = device.module,
+        .device_type = device.device_type,
+        .priority = device.priority
+    };
 
     if(allocate(&new_device.device_role, device.device_role.size_in_bytes) != OK) {
         return NOT_OK;
@@ -276,24 +273,24 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
+    const auto con = static_cast<struct bamm::Context *> (context);
     std::unique_lock lock(con->mutex);
     std::vector<std::shared_ptr<org::openapitools::client::model::Message>> commands;
-    bool parse_commands = con->last_command_timestamp != 0;
+    const bool parse_commands = con->last_command_timestamp != 0;
     
     try {
         commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
-    } catch (std::exception& e) {
+    } catch (std::exception&) {
         return TIMEOUT_OCCURRED;
     }
 
     bool received_no_commands = true;
-    for(auto command : commands) {
+    for(const auto &command : commands) {
         if(command->getTimestamp() > con->last_command_timestamp) {
             con->last_command_timestamp = command->getTimestamp();
         }
 
-        auto received_device_id = command->getDeviceId();
+        const auto received_device_id = command->getDeviceId();
         if(received_device_id->getModuleId() == bamm::MISSION_MODULE_NUMBER) {
             received_no_commands = false;
         } else {
@@ -301,15 +298,10 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
         }
 
         if(parse_commands) {
-            MissionModule::AutonomyCommand proto_command {};
-            const auto parse_status = google::protobuf::util::JsonStringToMessage(
-                command->getPayload()->getData()->getJson().serialize(), &proto_command
-            );
-            if(!parse_status.ok()) {
+            std::string command_str = command->getPayload()->getData()->getJson().serialize();
+            if (bringauto::protobuf::ProtobufHelper::validateAutonomyCommand(command_str) != OK) {
                 return NOT_OK;
             }
-            std::string command_str;
-            proto_command.SerializeToString(&command_str);
 
             con->command_vector.emplace_back(command_str, bringauto::fleet_protocol::cxx::DeviceID(
                 received_device_id->getModuleId(),
@@ -336,12 +328,12 @@ int pop_command(buffer* command, device_identification* device, void *context) {
         return CONTEXT_INCORRECT;
     }
 
-    auto con = static_cast<struct bamm::Context *> (context);
-    auto command_object = std::get<0>(con->command_vector.back());
+    const auto con = static_cast<struct bamm::Context *> (context);
+    const auto command_object = std::get<0>(con->command_vector.back());
 
     bringauto::fleet_protocol::cxx::StringAsBuffer::createBufferAndCopyData(command, command_object);
 
-    auto& device_id = std::get<1>(con->command_vector.back());
+    const auto& device_id = std::get<1>(con->command_vector.back());
 
     device->module = device_id.getDeviceId().module;
     device->device_type = device_id.getDeviceId().device_type;
