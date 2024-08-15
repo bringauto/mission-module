@@ -16,7 +16,7 @@ public:
 
 	static int jsonToBuffer(buffer* buffer, const json& json);
 
-	static MissionModule::AutonomyStatus_State stringToAutonomyState(const std::string &state);
+	static MissionModule::AutonomyStatus_State stringToAutonomyState(const std::string_view &state);
 
 	static std::string autonomyStateToString(MissionModule::AutonomyStatus_State state);
 

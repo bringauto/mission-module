@@ -18,14 +18,14 @@ namespace bamm = bringauto::modules::mission_module;
 void *init(const config config_data) {
     auto *context = new bamm::Context {};
     const bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
-    std::string api_url;
-    std::string api_key;
-    std::string company_name;
-    std::string car_name;
-    int max_requests_threshold_count;
-    int max_requests_threshold_period_ms;
-    int delay_after_threshold_reached_ms;
-    int retry_requests_delay_ms;
+    std::string api_url {};
+    std::string api_key {};
+    std::string company_name {};
+    std::string car_name {};
+    int max_requests_threshold_count {};
+    int max_requests_threshold_period_ms {};
+    int delay_after_threshold_reached_ms {};
+    int retry_requests_delay_ms {};
 
     for (auto i = config.cbegin(); i != config.cend(); ++i) {
         if (i->first == "api_url") {
@@ -62,7 +62,7 @@ void *init(const config config_data) {
                 if (max_requests_threshold_count < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (...) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -73,7 +73,7 @@ void *init(const config config_data) {
                 if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (...) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -84,7 +84,7 @@ void *init(const config config_data) {
                 if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (...) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -95,7 +95,7 @@ void *init(const config config_data) {
                 if (retry_requests_delay_ms < 0 || i->second.empty()) {
                     throw std::exception();
                 }
-            } catch (...) {
+            } catch (std::exception&) {
                 delete context;
                 return nullptr;
             }
@@ -163,7 +163,7 @@ int forward_status(const buffer device_status, const device_identification devic
 
         try {
             con->fleet_api_client->sendStatus(device_status_str);
-        } catch (...) {
+        } catch (std::exception&) {
             return NOT_OK;
         }
 
@@ -203,7 +203,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
             con->fleet_api_client->sendStatus(
                 error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
             );
-        } catch (...) {
+        } catch (std::exception&) {
             return NOT_OK;
         }
 
@@ -223,12 +223,12 @@ int device_disconnected(const int disconnect_type, const device_identification d
     const std::string_view device_device_role(static_cast<char*> (device.device_role.data), device.device_role.size_in_bytes);
     const std::string_view device_device_name(static_cast<char*> (device.device_name.data), device.device_name.size_in_bytes);
 
-    for(auto it = con->devices.begin(); it != con->devices.end(); it++) {
+    for(auto it = con->devices.begin(); it != con->devices.end(); ++it) {
         const std::string_view it_device_role(static_cast<char*> (it->device_role.data), it->device_role.size_in_bytes);
         const std::string_view it_device_name(static_cast<char*> (it->device_name.data), it->device_name.size_in_bytes);
 
-        bool device_is_present = it->device_type == device.device_type && it_device_role == device_device_role && it_device_name == device_device_name
-                                 && it->module == device.module && it->priority == device.priority;
+        const bool device_is_present = it->device_type == device.device_type && it_device_role == device_device_role &&
+            it_device_name == device_device_name && it->module == device.module && it->priority == device.priority;
 
         if(device_is_present) {
             deallocate(&it->device_role);
@@ -280,7 +280,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     
     try {
         commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
-    } catch (std::exception& e) {
+    } catch (std::exception&) {
         return TIMEOUT_OCCURRED;
     }
 
