@@ -77,7 +77,10 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 }
 
 int AutonomyDevice::generate_first_command(struct buffer *default_command) {
-	MissionModule::AutonomyCommand command = generateCommand(std::vector<MissionModule::Station>(), "", MissionModule::AutonomyCommand_Action_NO_ACTION);
+	MissionModule::AutonomyCommand command = generateCommand(std::vector<MissionModule::Station>(),
+		"Undefined", // Necessary due to protobuf generating empty messages with default values
+		MissionModule::AutonomyCommand_Action_NO_ACTION);
+
 	if (protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(default_command, command) != OK) {
 		return NOT_OK;
 	}
