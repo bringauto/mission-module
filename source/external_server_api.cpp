@@ -308,6 +308,11 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
             if(!parse_status.ok()) {
                 return NOT_OK;
             }
+
+            if (proto_command.action() == MissionModule::AutonomyCommand_Action_NO_ACTION) {
+                proto_command.set_route("Undefined"); // Necessary due to protobuf generating empty messages with default values
+            }
+
             std::string command_str;
             proto_command.SerializeToString(&command_str);
 
