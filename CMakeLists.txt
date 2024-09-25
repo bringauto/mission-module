@@ -10,7 +10,7 @@ INCLUDE(CheckPIESupported)
 CHECK_PIE_SUPPORTED()
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-SET(MISSION_MODULE_VERSION 1.2.9)
+SET(MISSION_MODULE_VERSION 1.2.10)
 
 OPTION(BRINGAUTO_INSTALL "Configure install" OFF)
 OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
@@ -59,11 +59,10 @@ FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
-    FIND_PACKAGE(fleet-http-client-shared 1.3.0 REQUIRED)
+    FIND_PACKAGE(fleet-http-client-shared 1.5.0 REQUIRED)
     ### fleet-http-client dependencies
     FIND_PACKAGE(Boost REQUIRED)
     FIND_PACKAGE(cpprestsdk REQUIRED)
-    FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
 ENDIF ()
 
 CMDEF_ADD_LIBRARY(
