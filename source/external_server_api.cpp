@@ -278,7 +278,8 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
     auto con = static_cast<struct bamm::Context *> (context);
     std::unique_lock lock(con->mutex);
-    std::vector<std::shared_ptr<org::openapitools::client::model::Message>> commands;
+    std::pair<std::vector<std::shared_ptr<org::openapitools::client::model::Message>>,
+        bringauto::fleet_protocol::http_client::FleetApiClient::ReturnCode> commands;
     bool parse_commands = con->last_command_timestamp != 0;
     
     try {
@@ -288,7 +289,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
     }
 
     bool received_no_commands = true;
-    for(auto command : commands) {
+    for(const auto& command : commands.first) {
         if(command->getTimestamp() > con->last_command_timestamp) {
             con->last_command_timestamp = command->getTimestamp();
         }
