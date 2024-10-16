@@ -70,7 +70,7 @@ aggregate_status(struct buffer *aggregated_status, const struct buffer current_s
 [[nodiscard]] int command_data_valid(const struct buffer command, unsigned int device_type) {
 	switch (device_type) {
 		case bamm::AUTONOMY_DEVICE_TYPE:
-			return bamm::devices::AutonomyDevice::status_data_valid(command);
+			return bamm::devices::AutonomyDevice::command_data_valid(command);
 		default:
 			return NOT_OK;
 	}

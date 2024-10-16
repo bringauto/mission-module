@@ -1,8 +1,8 @@
 #pragma once
 
-#include <MissionModule.pb.h>
 #include <fleet_protocol/common_headers/memory_management.h>
 
+#include <chrono>
 #include <map>
 
 namespace bringauto::modules::mission_module::devices {
@@ -90,9 +90,6 @@ public:
 	 */
 	static int command_data_valid(const struct buffer command);
 private:
-	static MissionModule::AutonomyCommand generateCommand(std::vector<MissionModule::Station> stops, std::string route,
-														  MissionModule::AutonomyCommand::Action action);
-
 	/**
 	 * @brief Map of last sent status timestamps for each device type
 	 */
