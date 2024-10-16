@@ -57,45 +57,29 @@ void *init(const config config_data) {
             car_name = i->second;
         }
         else if (i->first == "max_requests_threshold_count") {
-            try {
-                max_requests_threshold_count = std::stoi(i->second);
-                if (max_requests_threshold_count < 0 || i->second.empty()) {
-                    throw std::exception();
-                }
-            } catch (std::exception&) {
+            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), max_requests_threshold_count);
+            if (result.ec == std::errc() || max_requests_threshold_count < 0 || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
         }
         else if (i->first == "max_requests_threshold_period_ms") {
-            try {
-                max_requests_threshold_period_ms = std::stoi(i->second);
-                if (max_requests_threshold_period_ms < 0 || i->second.empty()) {
-                    throw std::exception();
-                }
-            } catch (std::exception&) {
+            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), max_requests_threshold_period_ms);
+            if (result.ec == std::errc() || max_requests_threshold_period_ms < 0 || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
         }
         else if (i->first == "delay_after_threshold_reached_ms") {
-            try {
-                delay_after_threshold_reached_ms = std::stoi(i->second);
-                if (delay_after_threshold_reached_ms < 0 || i->second.empty()) {
-                    throw std::exception();
-                }
-            } catch (std::exception&) {
+            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), delay_after_threshold_reached_ms);
+            if (result.ec == std::errc() || delay_after_threshold_reached_ms < 0 || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
         }
         else if (i->first == "retry_requests_delay_ms") {
-            try {
-                retry_requests_delay_ms = std::stoi(i->second);
-                if (retry_requests_delay_ms < 0 || i->second.empty()) {
-                    throw std::exception();
-                }
-            } catch (std::exception&) {
+            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), retry_requests_delay_ms);
+            if (result.ec == std::errc() || retry_requests_delay_ms < 0 || i->second.empty()) {
                 delete context;
                 return nullptr;
             }
