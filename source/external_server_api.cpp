@@ -145,9 +145,8 @@ int forward_status(const buffer device_status, const device_identification devic
             )
         );
 
-        try {
-            con->fleet_api_client->sendStatus(device_status_str);
-        } catch (std::exception&) {
+        auto rc = con->fleet_api_client->sendStatus(device_status_str);
+        if(rc != bringauto::fleet_protocol::http_client::FleetApiClient::ReturnCode::OK) {
             return NOT_OK;
         }
 
@@ -183,11 +182,10 @@ int forward_error_message(const buffer error_msg, const device_identification de
             )
         );
 
-        try {
-            con->fleet_api_client->sendStatus(
-                error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
-            );
-        } catch (std::exception&) {
+        auto rc = con->fleet_api_client->sendStatus(
+            error_msg_str, bringauto::fleet_protocol::http_client::FleetApiClient::StatusType::STATUS_ERROR
+        );
+        if(rc != bringauto::fleet_protocol::http_client::FleetApiClient::ReturnCode::OK) {
             return NOT_OK;
         }
 
@@ -259,18 +257,15 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
     const auto con = static_cast<struct bamm::Context *> (context);
     std::unique_lock lock(con->mutex);
-    std::pair<std::vector<std::shared_ptr<org::openapitools::client::model::Message>>,
-        bringauto::fleet_protocol::http_client::FleetApiClient::ReturnCode> commands;
     bool parse_commands = con->last_command_timestamp != 0;
     
-    try {
-        commands = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
-    } catch (std::exception&) {
+    auto [commands, rc] = con->fleet_api_client->getCommands(con->last_command_timestamp + 1, true);
+    if(rc != bringauto::fleet_protocol::http_client::FleetApiClient::ReturnCode::OK) {
         return TIMEOUT_OCCURRED;
     }
 
     bool received_no_commands = true;
-    for(const auto& command : commands.first) {
+    for(const auto& command : commands) {
         if(command->getTimestamp() > con->last_command_timestamp) {
             con->last_command_timestamp = command->getTimestamp();
         }
