@@ -12,7 +12,7 @@ ELSE ()
 ENDIF ()
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
-    BA_PACKAGE_LIBRARY(fleet-http-client-shared v1.5.0)
+    BA_PACKAGE_LIBRARY(fleet-http-client-shared v2.0.0)
     BA_PACKAGE_LIBRARY(boost                    v1.86.0)
     BA_PACKAGE_LIBRARY(cpprestsdk               v2.10.20)
 ENDIF ()
