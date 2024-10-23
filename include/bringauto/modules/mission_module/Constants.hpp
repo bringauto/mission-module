@@ -18,7 +18,7 @@ public:
     /**
      * @brief Minimum time between two status messages being sent when speed is above the threshold
      */
-    static constexpr std::chrono::milliseconds status_sending_period = std::chrono::milliseconds(2900);
+    static constexpr auto status_sending_period = std::chrono::milliseconds(2900);
 };
 
 }

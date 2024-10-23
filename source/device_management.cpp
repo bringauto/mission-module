@@ -12,4 +12,3 @@ int is_device_type_supported(unsigned int device_type) {
 			return NOT_OK;
 	}
 }
-
