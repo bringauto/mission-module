@@ -10,7 +10,7 @@ INCLUDE(CheckPIESupported)
 CHECK_PIE_SUPPORTED()
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-SET(MISSION_MODULE_VERSION 1.2.11)
+SET(MISSION_MODULE_VERSION 1.2.12)
 
 OPTION(BRINGAUTO_INSTALL "Configure install" OFF)
 OPTION(BRINGAUTO_PACKAGE "Configure package creation" OFF)
@@ -61,7 +61,8 @@ FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
     FIND_PACKAGE(fleet-http-client-shared 1.5.0 REQUIRED)
     ### fleet-http-client dependencies
-    FIND_PACKAGE(Boost REQUIRED)
+    FIND_PACKAGE(Boost CONFIG REQUIRED)
+    FIND_PACKAGE(ZLIB REQUIRED)
     FIND_PACKAGE(cpprestsdk REQUIRED)
 ENDIF ()
 
@@ -120,6 +121,13 @@ IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
             TYPE SHARED
             SOURCES "source/external_server_api.cpp" "source/memory_management.cpp" "source/device_management.cpp"
             VERSION ${MISSION_MODULE_VERSION}
+    )
+    # Explicitly add Boost dependencies due to obsolete cpprestsdk cmake export package
+    TARGET_LINK_LIBRARIES(fleet-http-client-shared::fleet-http-client-shared
+            INTERFACE
+                Boost::regex Boost::date_time Boost::atomic Boost::random Boost::chrono
+                Boost::system Boost::filesystem Boost::thread
+                ZLIB::ZLIB
     )
     TARGET_LINK_LIBRARIES(mission-external-server-shared
             PRIVATE
