@@ -38,13 +38,14 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 	auto newAutonomyStatus = protobuf::ProtobufHelper::parseAutonomyStatus(new_status);
 	auto currentAutonomyCommand = protobuf::ProtobufHelper::parseAutonomyCommand(current_command);
 
-	if (currentAutonomyStatus.state() == MissionModule::AutonomyStatus_State_DRIVE &&
-			newAutonomyStatus.state() == MissionModule::AutonomyStatus_State_IN_STOP) {
-		auto* stations = currentAutonomyCommand.mutable_stops();
-		if (stations->size() > 0) {
-			stations->erase(stations->begin());
-		}
+	auto* stations = currentAutonomyCommand.mutable_stops();
+	if (stations->size() > 0 &&
+			newAutonomyStatus.state() == MissionModule::AutonomyStatus_State_IN_STOP &&
+			(currentAutonomyStatus.state() == MissionModule::AutonomyStatus_State_DRIVE ||
+			newAutonomyStatus.nextstop().name() == stations->begin()->name())) {
+		stations->erase(stations->begin());
 	}
+
 	return protobuf::ProtobufHelper::serializeProtobufMessageToBuffer(generated_command, currentAutonomyCommand);
 }
 

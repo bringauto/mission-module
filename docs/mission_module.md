@@ -19,6 +19,21 @@ The Autonomy keeps in memory the NAME of the next stop (the `nextStop` in the ac
 
 The Autonomy device sends the car status to the Mission Module. The status contains a field `State` with the value corresponding to the state of the device (`DRIVE`, `IN_STOP`, `IDLE`, `OBSTACLE`, `ERROR`).
 
+When the connection between module gateway and external server is dropped, stops are being removed from commands when certain conditions are met. When a stop is finished while offline, it is added to a list of stops in the error message, which will be sent on reconnection.
+
+```mermaid
+flowchart TD
+    command_gen(Command generation)
+    command_gen --> stop_size{{Any remaining stops in command?}}
+    stop_size -->|yes| in_stop{{IN_STOP car state in current status?}}
+    in_stop -->|yes| remove_check{{DRIVE car state in previous satus OR next station in command equal to next station in current status}}
+    remove_check -->|yes| remove_stop(Remove next stop from command)
+    error_aggr(Error aggregation)
+    error_aggr --> in_stop_2{{IN_STOP car state in current status?}}
+    in_stop_2 -->|yes| same_stop{{Last finished stop in error message different than current stop?}}
+    same_stop -->|yes| add_stop(Add current stop to finished stops in error message)
+```
+
 # Messages
 
 ## Structure
