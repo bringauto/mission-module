@@ -4,8 +4,7 @@ import fleet_http_client_python # type: ignore
 
 
 PROFILE_ALL = 'all'
-PROFILE_MQTT = 'vernemq-testing'
-NAME_MQTT = 'scripts-vernemq-1'
+PROFILE_MQTT = 'mqtt'
 
 STATE_IDLE = 0
 STATE_DRIVE = 1
@@ -45,6 +44,7 @@ def kill_docker_component(name: str):
 
 
 def check_car_state(statuses: list, state: int) -> bool:
+    """Check if any of the statuses has the given state."""
     for status in statuses:
         if status.state == state:
             return True
@@ -52,6 +52,7 @@ def check_car_state(statuses: list, state: int) -> bool:
 
 
 def check_car_state_and_next_stop(statuses: list, state: int, next_stop: str) -> bool:
+    """Check if any of the statuses has the given state and next stop."""
     for status in statuses:
         if status.state == state and status.nextStop.name == next_stop:
             return True
@@ -59,6 +60,7 @@ def check_car_state_and_next_stop(statuses: list, state: int, next_stop: str) ->
 
 
 def get_status_errors() -> list[fleet_http_client_python.Message]:
+    """Get all status errors from the fleet HTTP API."""
     configuration = fleet_http_client_python.Configuration(host="http://localhost:8080/v2/protocol",
                                                            api_key={"AdminAuth": "ProtocolStaticAccessKey"})
     api_client = fleet_http_client_python.ApiClient(configuration)
