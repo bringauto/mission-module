@@ -14,7 +14,7 @@ def create_command() -> libs.MissionModule_pb2.AutonomyCommand:
     command.action = libs.MissionModule_pb2.AutonomyCommand.Action.START
     command.route = 'Moravské náměstí 2'
     
-    stops: list[libs.MissionModule_pb2.Station()] = []
+    stops: list[libs.MissionModule_pb2.Station] = []
     stops.append(libs.MissionModule_pb2.Station(name='Svatopluka Čecha A',
                                                 position=libs.MissionModule_pb2.Position(latitude=49.221645,
                                                                                             longitude=16.59081)))
