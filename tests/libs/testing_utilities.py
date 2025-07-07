@@ -39,7 +39,7 @@ def stop_docker_compose_profiles(profiles: list[str], yaml_file: str):
     subprocess.run(command, check=True)
 
 
-def kill_docker_component(name: str):
+def stop_docker_component(name: str):
     subprocess.run(['docker', 'stop', name], check=True)
 
 

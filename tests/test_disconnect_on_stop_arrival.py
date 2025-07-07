@@ -36,6 +36,8 @@ if __name__ == '__main__':
         print('No YAML file provided. Please use --yaml to specify the path to the Docker Compose YAML file.')
         exit(1)
 
+    test_passed = False
+
     # Construct the vernemq docker component name based on the YAML file path.
     mqtt_component_name = str(args.yaml).split('/')[-2] + '-vernemq-1'
 
@@ -61,7 +63,7 @@ if __name__ == '__main__':
                 print('Arrived in stop')
                 # Send a command that would normally cause the car to be stuck in the stop. Disconnect the MQTT broker at the same time.
                 mqtt_monitoring.send_mission_module_command(payload=create_command())
-                _utils.kill_docker_component(mqtt_component_name)
+                _utils.stop_docker_component(mqtt_component_name)
                 
                 print('Waiting for 2m 45s for car to arrive at the next stop...')
                 time.sleep(165)
@@ -81,9 +83,10 @@ if __name__ == '__main__':
             if len(finished_stops) != 1:
                 print('Unexpected number of finished stops:', len(finished_stops))
             elif finished_stops[0]['name'] != 'Těšínská':
-                print('Unexpected finished stop name:', finished_stops[0].name)
+                print('Unexpected finished stop name:', finished_stops[0]['name'])
             else:
-                print('Test passed: Car arrived at the correct stop after disconnecting from the MQTT broker.')
+                print('Car arrived at the correct stop after disconnecting from the MQTT broker.')
+                test_passed = True
 
 
     except KeyboardInterrupt:
@@ -94,3 +97,9 @@ if __name__ == '__main__':
     mqtt_monitoring.stop()
     sniff_thread.join()
     _utils.stop_docker_compose_all(args.yaml)
+    
+    if test_passed:
+        print('\n\033[92mTest passed.\033[0m')
+    else:
+        print('\n\033[31mTest failed.\033[0m')
+        exit(1)

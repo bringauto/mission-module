@@ -103,7 +103,7 @@ class MqttMonitoring:
         elif message.HasField('commandResponse'):
             self._print('\tCommand response sent')
         else:
-            self._print(f'\tMessage with unhandled type')
+            self._print('\tMessage with unhandled type')
         if self._verbose: self._print(message)
 
 
@@ -117,7 +117,7 @@ class MqttMonitoring:
         elif message.HasField('connectResponse'):
             self._print('\tConnect response sent')
         else:
-            self._print(f'\tMessage with unhandled type')
+            self._print('\tMessage with unhandled type')
         if self._verbose: self._print(message)
 
 
@@ -205,7 +205,7 @@ class MqttMonitoring:
         msg.command.CopyFrom(command)
 
         self._client.publish(
-            topic=f'bringauto/virtual_vehicle/external_server',
+            topic='bringauto/virtual_vehicle/external_server',
             payload=msg.SerializeToString(),
             qos=1
         )
