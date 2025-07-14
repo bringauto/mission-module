@@ -2,25 +2,26 @@ import argparse
 import threading
 import time
 
-import libs.MissionModule_pb2
+import mission_module_protobuf_files.MissionModule_pb2 as MissionModule_pb2
+
 import libs.sniff_mqtt
 import libs.testing_utilities as _utils
 
 
 
-def create_command() -> libs.MissionModule_pb2.AutonomyCommand:
+def create_command() -> MissionModule_pb2.AutonomyCommand:
     """Creates a command that is expected in the default etna scenario since it reaches the first stop."""
-    command = libs.MissionModule_pb2.AutonomyCommand()
-    command.action = libs.MissionModule_pb2.AutonomyCommand.Action.START
+    command = MissionModule_pb2.AutonomyCommand()
+    command.action = MissionModule_pb2.AutonomyCommand.Action.START
     command.route = 'Moravské náměstí 2'
     
-    stops: list[libs.MissionModule_pb2.Station] = []
-    stops.append(libs.MissionModule_pb2.Station(name='Svatopluka Čecha A',
-                                                position=libs.MissionModule_pb2.Position(latitude=49.221645,
-                                                                                            longitude=16.59081)))
-    stops.append(libs.MissionModule_pb2.Station(name='Těšínská',
-                                                position=libs.MissionModule_pb2.Position(latitude=49.22316,
-                                                                                            longitude=16.58995)))
+    stops: list[MissionModule_pb2.Station] = []
+    stops.append(MissionModule_pb2.Station(name='Svatopluka Čecha A',
+                                           position=MissionModule_pb2.Position(latitude=49.221645,
+                                                                               longitude=16.59081)))
+    stops.append(MissionModule_pb2.Station(name='Těšínská',
+                                           position=MissionModule_pb2.Position(latitude=49.22316,
+                                                                               longitude=16.58995)))
     command.stops.extend(stops)
     return command
 

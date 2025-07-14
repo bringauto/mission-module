@@ -5,3 +5,5 @@ pydantic == 2.7.1
 python-dateutil == 2.9.0.post0
 fleet_management_http_client_python @ git+https://github.com/bringauto/fleet-management-http-client-python.git@v3.1.5
 fleet_http_client_python @ git+https://github.com/bringauto/fleet-http-client-python.git@v2.8.5
+fleet_protocol_protobuf_files @ git+https://github.com/bringauto/fleet-protocol.git@main#subdirectory=protobuf/compiled/python
+file:../lib/protobuf-mission-module

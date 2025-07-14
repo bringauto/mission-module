@@ -1,8 +1,8 @@
 import time, threading
 
-import libs.ExternalProtocol_pb2
-import libs.InternalProtocol_pb2
-import libs.MissionModule_pb2
+import fleet_protocol_protobuf_files.ExternalProtocol_pb2 as ExternalProtocol_pb2
+import fleet_protocol_protobuf_files.InternalProtocol_pb2 as InternalProtocol_pb2
+import mission_module_protobuf_files.MissionModule_pb2 as MissionModule_pb2
 
 from paho.mqtt.client import (
     Client, MQTTMessage, MQTTv311
@@ -15,8 +15,8 @@ MISSION_MODULE_NUMBER = 1
 MAX_MESSAGES = 100
 
 
-def mission_module_device() -> libs.InternalProtocol_pb2.Device:
-    device = libs.InternalProtocol_pb2.Device()
+def mission_module_device() -> InternalProtocol_pb2.Device:
+    device = InternalProtocol_pb2.Device()
     device.module = MISSION_MODULE_NUMBER
     device.deviceType = 1
     device.deviceRole = 'autonomy'
@@ -94,7 +94,7 @@ class MqttMonitoring:
 
 
     def _decode_module_gateway_message(self, payload: bytes):
-        message = libs.ExternalProtocol_pb2.ExternalClient()
+        message = ExternalProtocol_pb2.ExternalClient()
         message.ParseFromString(payload)
         if message.HasField('status'):
             self._handle_status(getattr(message, 'status').deviceStatus)
@@ -108,7 +108,7 @@ class MqttMonitoring:
 
 
     def _decode_external_server_message(self, payload: bytes):
-        message = libs.ExternalProtocol_pb2.ExternalServer()
+        message = ExternalProtocol_pb2.ExternalServer()
         message.ParseFromString(payload)
         if message.HasField('command'):
             self._handle_command(getattr(message, 'command'))
@@ -129,7 +129,7 @@ class MqttMonitoring:
 
 
     def _handle_mission_module_status(self, status):
-        mission_status = libs.MissionModule_pb2.AutonomyStatus()
+        mission_status = MissionModule_pb2.AutonomyStatus()
         mission_status.ParseFromString(status)
         if self._store_statuses:
             with self._status_condition:
@@ -160,7 +160,7 @@ class MqttMonitoring:
 
 
     def _handle_mission_module_command(self, command):
-        mission_command = libs.MissionModule_pb2.AutonomyCommand()
+        mission_command = MissionModule_pb2.AutonomyCommand()
         mission_command.ParseFromString(command)
         if self._store_commands:
             with self._command_condition:
@@ -187,21 +187,21 @@ class MqttMonitoring:
             print(message)
 
 
-    def send_mission_module_command(self, payload: libs.MissionModule_pb2.AutonomyCommand) -> None:
+    def send_mission_module_command(self, payload: MissionModule_pb2.AutonomyCommand) -> None:
         """Sends a mission module command to the MQTT broker."""
-        if not isinstance(payload, libs.MissionModule_pb2.AutonomyCommand):
+        if not isinstance(payload, MissionModule_pb2.AutonomyCommand):
             raise TypeError('Command must be of type AutonomyCommand')
         
-        command = libs.ExternalProtocol_pb2.Command()
+        command = ExternalProtocol_pb2.Command()
         command.sessionId = self._mission_module_session_id
         command.messageCounter = self._mission_module_command_counter + 1
 
-        device_command = libs.InternalProtocol_pb2.DeviceCommand()
+        device_command = InternalProtocol_pb2.DeviceCommand()
         device_command.device.CopyFrom(mission_module_device())
         device_command.commandData = payload.SerializeToString()
         command.deviceCommand.CopyFrom(device_command)
 
-        msg = libs.ExternalProtocol_pb2.ExternalServer()
+        msg = ExternalProtocol_pb2.ExternalServer()
         msg.command.CopyFrom(command)
 
         self._client.publish(
