@@ -42,7 +42,7 @@ class MqttMonitoring:
 
 
     def _create_client(self):
-        self._client =Client(
+        self._client = Client(
             client_id='Monitoring Test',
             protocol=MQTTv311,
             transport='tcp',
