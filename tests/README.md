@@ -6,10 +6,10 @@ So far only manual tests are implemented.
 
 ### Setup
 
-Set up an [etna](https://github.com/bringauto/etna) repository, tests were created for etna tag v2.5.0.
+Set up an [etna](https://github.com/bringauto/etna) repository, tests were created for etna tag v2.5.1.
 
 Steps to use local mission module changes in etna:
-- Set up a [Module Gateway](https://github.com/bringauto/module-gateway) repository, tests were created for Module Gateway tag v1.3.4.
+- Set up a [Module Gateway](https://github.com/bringauto/module-gateway) repository, tests were created for Module Gateway tag v1.3.5.
 - Push the local mission module changes to a new branch
 - Change the mission module version in the module gateway Dockerfile to the new branch name
 - Run the create_docker_compose_for_testing.py python script in etna to use a local build of module gateway
