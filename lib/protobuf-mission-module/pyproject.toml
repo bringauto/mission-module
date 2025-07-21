@@ -1,0 +1,7 @@
+[project]
+name = "mission_module_protobuf_files"
+version = "1.2.13"
+
+
+[tool.setuptools.packages.find]
+include = ["mission_module_protobuf_files"]

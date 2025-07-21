@@ -56,3 +56,7 @@ External Server Module Configuration is required as:
 - `api_key`: generated in Fleet Protocol HTTP API (script/new_admin.py)
 - `company_name`, `car_name`: used to identify the car in Fleet Protocol HTTP API
 - `max_requests_threshold_count`, `max_requests_threshold_period_ms`, `delay_after_threshold_reached_ms`, `retry_requests_delay_ms`: explained in [HTTP client README](./lib/fleet-v2-http-client/README.md)
+
+## Testing
+
+All tests are contained within the `tests` folder. [Testing README](./tests/README.md)
