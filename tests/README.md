@@ -11,7 +11,7 @@ Set up an [etna](https://github.com/bringauto/etna) repository, ideally with the
 Steps to use local mission module changes in etna:
 - Set up a [Module Gateway](https://github.com/bringauto/module-gateway) repository, ideally with the latest master branch.
 - Push the local mission module changes to a new branch
-- Change the mission module vertion in the module gateway Dockerfile to the new branch name
+- Change the mission module version in the module gateway Dockerfile to the new branch name
 - Run the create_docker_compose_for_testing.py python script in etna to use a local build of module gateway
 
 ```bash
