@@ -6,7 +6,7 @@ So far only manual tests are implemented.
 
 ### Setup
 
-Set up an [etna](https://github.com/bringauto/etna) repository anywhere.
+Set up an [etna](https://github.com/bringauto/etna) repository anywhere with the latest master branch.
 
 ```bash
 cd tests

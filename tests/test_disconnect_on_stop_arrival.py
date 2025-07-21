@@ -43,6 +43,8 @@ if __name__ == '__main__':
     mqtt_component_name = str(args.yaml).split('/')[-2] + '-vernemq-1'
 
     print('Starting test: Disconnect on stop arrival')
+    _utils.stop_docker_compose_all(args.yaml)
+    time.sleep(5)  # Wait for the services to stop completely
     _utils.run_docker_compose_all(args.yaml)
     print('Waiting for MQTT broker to start...')
     time.sleep(5)
