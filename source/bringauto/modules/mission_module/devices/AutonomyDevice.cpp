@@ -50,11 +50,12 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 		return NOT_OK;
 	}
 
-	if (ba_json::JsonHelper::stringToAutonomyState(std::string(current_status_json.at("state"))) ==
-		MissionModule::AutonomyStatus_State_DRIVE &&
+	if (!current_command_json.at("stops").empty() &&
 		ba_json::JsonHelper::stringToAutonomyState(std::string(new_status_json.at("state"))) ==
 		MissionModule::AutonomyStatus_State_IN_STOP &&
-		!current_command_json.at("stops").empty()) {
+		(ba_json::JsonHelper::stringToAutonomyState(std::string(current_status_json.at("state"))) ==
+		MissionModule::AutonomyStatus_State_DRIVE ||
+		new_status_json.at("nextStop") == current_command_json.at("stops")[0])) {
 		current_command_json.at("stops").erase(current_command_json.at("stops").begin());
 	}
 	return ba_json::JsonHelper::jsonToBuffer(generated_command, current_command_json);
