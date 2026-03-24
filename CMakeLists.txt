@@ -58,6 +58,8 @@ FIND_PACKAGE(nlohmann_json 3.10.5 REQUIRED)
 FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
+FIND_PACKAGE(async-function-execution-shared 1.0.0 REQUIRED)
+FIND_PACKAGE(aeron 1.48.6 REQUIRED)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
     FIND_PACKAGE(fleet-http-client-shared 2.0.0 REQUIRED)
