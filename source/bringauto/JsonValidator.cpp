@@ -16,12 +16,7 @@ int JsonValidator::validateAutonomyStatus(const std::string &status) {
         if (!json.at("state").is_string()) {
             return NOT_OK;
         }
-        const std::string state = json.at("state").get<std::string>();
-        if (state != JsonHelper::autonomyStateToString(modules::mission_module::AutonomyState::IDLE) &&
-            state != JsonHelper::autonomyStateToString(modules::mission_module::AutonomyState::DRIVE) &&
-            state != JsonHelper::autonomyStateToString(modules::mission_module::AutonomyState::IN_STOP) &&
-            state != JsonHelper::autonomyStateToString(modules::mission_module::AutonomyState::OBSTACLE) &&
-            state != JsonHelper::autonomyStateToString(modules::mission_module::AutonomyState::ERROR)) {
+        if (!JsonHelper::isValidAutonomyStateString(json.at("state").get<std::string>())) {
             return NOT_OK;
         }
         if (!json.at("telemetry").is_object() || !json.at("telemetry").contains("speed")) {
@@ -42,10 +37,7 @@ int JsonValidator::validateAutonomyCommand(const std::string &command) {
         if (!json.at("action").is_string()) {
             return NOT_OK;
         }
-        const std::string action = json.at("action").get<std::string>();
-        if (action != JsonHelper::autonomyActionToString(modules::mission_module::AutonomyCommand::NO_ACTION) &&
-            action != JsonHelper::autonomyActionToString(modules::mission_module::AutonomyCommand::STOP) &&
-            action != JsonHelper::autonomyActionToString(modules::mission_module::AutonomyCommand::START)) {
+        if (!JsonHelper::isValidAutonomyCommandString(json.at("action").get<std::string>())) {
             return NOT_OK;
         }
         if (!json.at("stops").is_array()) {
