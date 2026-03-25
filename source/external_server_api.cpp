@@ -2,21 +2,36 @@
 #include <bringauto/modules/mission_module/Context.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
-#include <bringauto/protobuf/ProtobufHelper.hpp>
+#include <bringauto/JsonValidator.hpp>
 #include <bringauto/fleet_protocol/cxx/DeviceID.hpp>
 #include <bringauto/fleet_protocol/cxx/KeyValueConfig.hpp>
 #include <bringauto/fleet_protocol/cxx/StringAsBuffer.hpp>
 #include <bringauto/fleet_protocol/http_client/FleetApiClient.hpp>
  
 #include <vector>
+#include <string_view>
 #include <cstring>
 #include <regex>
+#include <map>
+#include <functional>
+#include <optional>
 
 
 namespace bamm = bringauto::modules::mission_module;
 
+using Validator = std::function<bool(const std::string&)>;
+struct StringConfigEntry { std::string* target; Validator validate; };
+
+std::optional<int> parseNonNegativeInt(const std::string& data) {
+    int value {};
+    auto result = std::from_chars(data.data(), data.data() + data.size(), value);
+    if (result.ec != std::errc() || value < 0) {
+        return std::nullopt;
+    }
+    return value;
+}
+
 void *init(const config config_data) {
-    auto *context = new bamm::Context {};
     const bringauto::fleet_protocol::cxx::KeyValueConfig config(config_data);
     std::string api_url {};
     std::string api_key {};
@@ -27,62 +42,37 @@ void *init(const config config_data) {
     int delay_after_threshold_reached_ms {};
     int retry_requests_delay_ms {};
 
-    for (auto i = config.cbegin(); i != config.cend(); ++i) {
-        if (i->first == "api_url") {
-            if (!std::regex_match(i->second, std::regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)"))) {
-                delete context;
+    const std::regex alphanumeric_regex("^[a-z0-9_]*$");
+    const std::regex url_regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)");
+
+    const std::map<std::string, StringConfigEntry, std::less<>> string_config_keys {
+        { "api_url",      { &api_url,      [&url_regex](const std::string& v)          { return std::regex_match(v, url_regex); } } },
+        { "api_key",      { &api_key,      [](const std::string& v)                    { return !v.empty(); } } },
+        { "company_name", { &company_name, [&alphanumeric_regex](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
+        { "car_name",     { &car_name,     [&alphanumeric_regex](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
+    };
+
+    const std::map<std::string, int*, std::less<>> int_config_keys {
+        { "max_requests_threshold_count",     &max_requests_threshold_count },
+        { "max_requests_threshold_period_ms", &max_requests_threshold_period_ms },
+        { "delay_after_threshold_reached_ms", &delay_after_threshold_reached_ms },
+        { "retry_requests_delay_ms",          &retry_requests_delay_ms }
+    };
+
+    for (auto entry = config.cbegin(); entry != config.cend(); ++entry) {
+        if (auto string_key = string_config_keys.find(entry->first); string_key != string_config_keys.end()) {
+            const auto& [target, validate] = string_key->second;
+            if (!validate(entry->second)) {
                 return nullptr;
             }
-            api_url = i->second;
+            *target = entry->second;
         }
-        else if (i->first == "api_key") {
-            if (i->second.empty()) {
-                delete context;
+        else if (auto int_key = int_config_keys.find(entry->first); int_key != int_config_keys.end()) {
+            auto value = parseNonNegativeInt(entry->second);
+            if (!value) {
                 return nullptr;
             }
-            api_key = i->second;
-        }
-        else if (i->first == "company_name") {
-            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
-                delete context;
-                return nullptr;
-            }
-            company_name = i->second;
-        }
-        else if (i->first == "car_name") {
-            if (!std::regex_match(i->second, std::regex("^[a-z0-9_]*$")) || i->second.empty()) {
-                delete context;
-                return nullptr;
-            }
-            car_name = i->second;
-        }
-        else if (i->first == "max_requests_threshold_count") {
-            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), max_requests_threshold_count);
-            if (result.ec != std::errc() || max_requests_threshold_count < 0 || i->second.empty()) {
-                delete context;
-                return nullptr;
-            }
-        }
-        else if (i->first == "max_requests_threshold_period_ms") {
-            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), max_requests_threshold_period_ms);
-            if (result.ec != std::errc() || max_requests_threshold_period_ms < 0 || i->second.empty()) {
-                delete context;
-                return nullptr;
-            }
-        }
-        else if (i->first == "delay_after_threshold_reached_ms") {
-            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), delay_after_threshold_reached_ms);
-            if (result.ec != std::errc() || delay_after_threshold_reached_ms < 0 || i->second.empty()) {
-                delete context;
-                return nullptr;
-            }
-        }
-        else if (i->first == "retry_requests_delay_ms") {
-            auto result = std::from_chars(i->second.data(), i->second.data() + i->second.size(), retry_requests_delay_ms);
-            if (result.ec != std::errc() || retry_requests_delay_ms < 0 || i->second.empty()) {
-                delete context;
-                return nullptr;
-            }
+            *int_key->second = *value;
         }
     }
 
@@ -100,6 +90,7 @@ void *init(const config config_data) {
         .retryRequestsDelayMs = std::chrono::milliseconds(retry_requests_delay_ms)
     };
 
+    auto *context = new bamm::Context {};
     context->fleet_api_client = std::make_shared<bringauto::fleet_protocol::http_client::FleetApiClient>(
         fleet_api_config, request_frequency_guard_config
     );
@@ -129,7 +120,7 @@ int forward_status(const buffer device_status, const device_identification devic
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         const bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
         const auto device_status_str = std::string(device_status_bas.getStringView());
-        if (bringauto::protobuf::ProtobufHelper::validateAutonomyStatus(device_status_str) != OK) {
+        if (bringauto::JsonValidator::validateAutonomyStatus(device_status_str) != OK) {
             return NOT_OK;
         }
 
@@ -166,7 +157,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         const bringauto::fleet_protocol::cxx::BufferAsString error_msg_bas(&error_msg);
         const auto error_msg_str = std::string(error_msg_bas.getStringView());
-        if (bringauto::protobuf::ProtobufHelper::validateAutonomyError(error_msg_str) != OK) {
+        if (bringauto::JsonValidator::validateAutonomyError(error_msg_str) != OK) {
             return NOT_OK;
         }
 
@@ -279,7 +270,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
         if(parse_commands) {
             std::string command_str = command->getPayload()->getData()->getJson().serialize();
-            if (bringauto::protobuf::ProtobufHelper::validateAutonomyCommand(command_str) != OK) {
+            if (bringauto::JsonValidator::validateAutonomyCommand(command_str) != OK) {
                 return NOT_OK;
             }
 

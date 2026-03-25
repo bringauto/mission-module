@@ -55,17 +55,17 @@ IF (NOT BRINGAUTO_SYSTEM_DEP)
 ENDIF ()
 
 FIND_PACKAGE(nlohmann_json 3.10.5 REQUIRED)
-FIND_PACKAGE(Protobuf 3.21.12 REQUIRED)
 FIND_PACKAGE(fleet-protocol-interface 2.0.0 REQUIRED)
 FIND_PACKAGE(fleet-protocol-cxx-helpers-static 1.1.1 REQUIRED)
+FIND_PACKAGE(async-function-execution-shared 1.0.0 REQUIRED)
+FIND_PACKAGE(aeron 1.48.6 REQUIRED)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
-    FIND_PACKAGE(fleet-http-client-shared 2.0.0 REQUIRED)
+    FIND_PACKAGE(fleet-http-client-shared 2.0.1 REQUIRED)
     ### fleet-http-client dependencies
     FIND_PACKAGE(Boost CONFIG REQUIRED)
     FIND_PACKAGE(ZLIB REQUIRED)
     FIND_PACKAGE(cpprestsdk REQUIRED)
-    FIND_PACKAGE(libbringauto_logger 1.2.0 REQUIRED)
 ENDIF ()
 
 CMDEF_ADD_LIBRARY(
@@ -74,18 +74,11 @@ CMDEF_ADD_LIBRARY(
         VERSION ${MISSION_MODULE_VERSION}
 )
 
-# Protobuf, JSON mission payload
-SET(Protobuf_USE_STATIC_LIBS ON)
-FILE(GLOB_RECURSE protobuf_mission_cpp_files "lib/protobuf-mission-module/*")
-ADD_LIBRARY(message_handler_lib STATIC ${protobuf_mission_cpp_files})
-TARGET_INCLUDE_DIRECTORIES(message_handler_lib PUBLIC "lib/protobuf-mission-module/")
-TARGET_LINK_LIBRARIES(message_handler_lib PUBLIC protobuf::libprotobuf nlohmann_json::nlohmann_json)
-
 FILE(GLOB_RECURSE HEADERS "include/*")
 
 ADD_LIBRARY(mission_module_hpp INTERFACE ${HEADERS})
 TARGET_INCLUDE_DIRECTORIES(mission_module_hpp INTERFACE "include/")
-TARGET_LINK_LIBRARIES(mission_module_hpp INTERFACE message_handler_lib)
+TARGET_LINK_LIBRARIES(mission_module_hpp INTERFACE nlohmann_json::nlohmann_json)
 
 FILE(GLOB_RECURSE SOURCES "source/bringauto/*")
 
@@ -95,7 +88,6 @@ TARGET_LINK_LIBRARIES(mission_module_sources PUBLIC
         mission_module_hpp
         fleet-protocol-interface::common-headers-interface
         fleet-protocol-cxx-helpers-static::fleet-protocol-cxx-helpers-static
-        message_handler_lib
 )
 
 IF (FLEET_PROTOCOL_BUILD_MODULE_GATEWAY)

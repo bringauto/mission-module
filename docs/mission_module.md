@@ -38,7 +38,7 @@ flowchart TD
 
 ## Structure
 
-Below, the data passed in the messages used in the External Protocol are described. The data structure can also be found in the [.proto](../lib/protobuf-mission-module/) file.
+Below, the data passed in the messages used in the External Protocol are described.
 
 ## Status payload data
 
@@ -166,8 +166,8 @@ Example of command payload when there is no mission defined for the car:
 
 ## Validation
 
-The validation of each of the messages is done against the message structure described above (and in the [.proto](../lib/protobuf-mission-module/) file). The functions for validation:
+The validation of each of the messages is done against the message structure described above. The functions for validation are in `JsonValidator`:
 
-- `parseAutonomyStatus` for status,
-- `parseAutonomyError` for status error,
-- `parseAutonomyCommand` for command.
+- `JsonValidator::validateAutonomyStatus` for status,
+- `JsonValidator::validateAutonomyError` for status error,
+- `JsonValidator::validateAutonomyCommand` for command.
