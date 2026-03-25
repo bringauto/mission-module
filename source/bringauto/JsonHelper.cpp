@@ -45,10 +45,10 @@ std::string JsonHelper::autonomyStateToString(const AutonomyState state) {
 	}
 }
 
-std::string JsonHelper::autonomyActionToString(const AutonomyAction action) {
+std::string JsonHelper::autonomyActionToString(const AutonomyCommand action) {
 	switch (action) {
-		case AutonomyAction::STOP:  return "STOP";
-		case AutonomyAction::START: return "START";
+		case AutonomyCommand::STOP:  return "STOP";
+		case AutonomyCommand::START: return "START";
 		default:                    return "NO_ACTION";
 	}
 }

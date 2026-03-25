@@ -93,7 +93,7 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 
 int AutonomyDevice::generate_first_command(struct buffer *default_command) {
 	json command {};
-	command["action"] = JsonHelper::autonomyActionToString(AutonomyAction::NO_ACTION);
+	command["action"] = JsonHelper::autonomyActionToString(AutonomyCommand::NO_ACTION);
 	command["route"] = "";
 	command["stops"] = json::array();
 	if (JsonHelper::jsonToBuffer(default_command, command) != OK) {
