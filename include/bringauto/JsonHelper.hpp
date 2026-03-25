@@ -57,6 +57,20 @@ public:
     static std::string autonomyActionToString(modules::mission_module::AutonomyCommand action);
 
     /**
+     * @brief Checks whether a string is a valid AutonomyState representation
+     * @param state String to check
+     * @return true if the string matches one of the known AutonomyState values
+     */
+    static bool isValidAutonomyStateString(std::string_view state);
+
+    /**
+     * @brief Checks whether a string is a valid AutonomyCommand action representation
+     * @param action String to check
+     * @return true if the string matches one of the known AutonomyCommand values
+     */
+    static bool isValidAutonomyCommandString(std::string_view action);
+
+    /**
      * @brief Checks whether a JSON object contains all required fields for an AutonomyStatus message
      * @param status JSON object to validate
      * @return true if all required fields are present

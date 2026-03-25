@@ -53,6 +53,25 @@ std::string JsonHelper::autonomyActionToString(const AutonomyCommand action) {
 	}
 }
 
+bool JsonHelper::isValidAutonomyStateString(const std::string_view state) {
+	for(const auto s: { AutonomyState::IDLE, AutonomyState::DRIVE, AutonomyState::IN_STOP,
+	                    AutonomyState::OBSTACLE, AutonomyState::ERROR }) {
+		if(state == autonomyStateToString(s)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool JsonHelper::isValidAutonomyCommandString(const std::string_view action) {
+	for(const auto a: { AutonomyCommand::NO_ACTION, AutonomyCommand::STOP, AutonomyCommand::START }) {
+		if(action == autonomyActionToString(a)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool JsonHelper::isValidAutonomyStatus(const json& status) {
 	if (!status.contains("state") || !status.contains("telemetry") || !status.contains("nextStop")) {
 		return false;
@@ -61,9 +80,7 @@ bool JsonHelper::isValidAutonomyStatus(const json& status) {
 	if (!state.is_string()) {
 		return false;
 	}
-	const std::string_view state_str = state.get<std::string>();
-	return state_str == "IDLE" || state_str == "DRIVE" || state_str == "IN_STOP" ||
-	       state_str == "OBSTACLE" || state_str == "ERROR";
+	return isValidAutonomyStateString(state.get<std::string>());
 }
 
 bool JsonHelper::isValidAutonomyCommand(const json& command) {
