@@ -9,6 +9,7 @@
 #include <bringauto/fleet_protocol/http_client/FleetApiClient.hpp>
  
 #include <vector>
+#include <string_view>
 #include <cstring>
 #include <regex>
 #include <unordered_map>
@@ -17,6 +18,16 @@
 
 
 namespace bamm = bringauto::modules::mission_module;
+
+struct StringHash {
+    using is_transparent = void;
+    std::size_t operator()(std::string_view s) const noexcept {
+        return std::hash<std::string_view>{}(s);
+    }
+};
+
+using Validator = std::function<bool(const std::string&)>;
+struct StringConfigEntry { std::string* target; Validator validate; };
 
 std::optional<int> parseNonNegativeInt(const std::string& data) {
     int value {};
@@ -41,17 +52,14 @@ void *init(const config config_data) {
     const std::regex alphanumeric_regex("^[a-z0-9_]*$");
     const std::regex url_regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)");
 
-    using Validator = std::function<bool(const std::string&)>;
-    struct StringConfigEntry { std::string* target; Validator validate; };
-
-    const std::unordered_map<std::string, StringConfigEntry> string_config_keys {
+    const std::unordered_map<std::string, StringConfigEntry, StringHash, std::equal_to<>> string_config_keys {
         { "api_url",      { &api_url,      [&](const std::string& v) { return std::regex_match(v, url_regex); } } },
         { "api_key",      { &api_key,      [](const std::string& v)  { return !v.empty(); } } },
         { "company_name", { &company_name, [&](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
         { "car_name",     { &car_name,     [&](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
     };
 
-    const std::unordered_map<std::string, int*> int_config_keys {
+    const std::unordered_map<std::string, int*, StringHash, std::equal_to<>> int_config_keys {
         { "max_requests_threshold_count",     &max_requests_threshold_count },
         { "max_requests_threshold_period_ms", &max_requests_threshold_period_ms },
         { "delay_after_threshold_reached_ms", &delay_after_threshold_reached_ms },
