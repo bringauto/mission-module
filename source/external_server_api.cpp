@@ -103,10 +103,8 @@ int destroy(void **context) {
     if(*context == nullptr){
         return NOT_OK;
     }
-    const auto con = reinterpret_cast<struct bamm::Context **> (context);
-
-    delete *con;
-    *con = nullptr;
+    delete static_cast<bamm::Context*>(*context);
+    *context = nullptr;
     return OK;
 }
 
