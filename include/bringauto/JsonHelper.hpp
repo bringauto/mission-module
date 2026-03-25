@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bringauto/modules/mission_module/AutonomyAction.hpp>
+#include <bringauto/modules/mission_module/AutonomyCommand.hpp>
 #include <bringauto/modules/mission_module/AutonomyState.hpp>
 #include <fleet_protocol/common_headers/memory_management.h>
 
@@ -50,11 +50,11 @@ public:
     static std::string autonomyStateToString(modules::mission_module::AutonomyState state);
 
     /**
-     * @brief Converts an AutonomyAction enum value to its string representation
-     * @param action AutonomyAction enum value
+     * @brief Converts an AutonomyCommand enum value to its string representation
+     * @param action AutonomyCommand enum value
      * @return String representation (e.g. "START", "STOP", "NO_ACTION")
      */
-    static std::string autonomyActionToString(modules::mission_module::AutonomyAction action);
+    static std::string autonomyActionToString(modules::mission_module::AutonomyCommand action);
 
     /**
      * @brief Checks whether a JSON object contains all required fields for an AutonomyStatus message
