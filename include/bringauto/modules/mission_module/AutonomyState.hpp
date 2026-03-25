@@ -11,7 +11,8 @@ enum class AutonomyState {
     DRIVE,
     IN_STOP,
     OBSTACLE,
-    ERROR
+    ERROR,
+    UNKNOWN
 };
 
 }

@@ -32,7 +32,8 @@ AutonomyState JsonHelper::stringToAutonomyState(const std::string_view state) {
 	if (state == "DRIVE")    return AutonomyState::DRIVE;
 	if (state == "IN_STOP")  return AutonomyState::IN_STOP;
 	if (state == "OBSTACLE") return AutonomyState::OBSTACLE;
-	return AutonomyState::ERROR;
+	if (state == "ERROR")    return AutonomyState::ERROR;
+	return AutonomyState::UNKNOWN;
 }
 
 std::string JsonHelper::autonomyStateToString(const AutonomyState state) {
@@ -41,7 +42,8 @@ std::string JsonHelper::autonomyStateToString(const AutonomyState state) {
 		case AutonomyState::DRIVE:    return "DRIVE";
 		case AutonomyState::IN_STOP:  return "IN_STOP";
 		case AutonomyState::OBSTACLE: return "OBSTACLE";
-		default:                      return "ERROR";
+		case AutonomyState::ERROR:    return "ERROR";
+		default:                      return "UNKNOWN";
 	}
 }
 
@@ -77,18 +79,34 @@ bool JsonHelper::isValidAutonomyStatus(const json& status) {
 		return false;
 	}
 	const auto& state = status.at("state");
-	if (!state.is_string()) {
+	if (!state.is_string() || !isValidAutonomyStateString(state.get<std::string>())) {
 		return false;
 	}
-	return isValidAutonomyStateString(state.get<std::string>());
+	const auto& telemetry = status.at("telemetry");
+	if (!telemetry.is_object() || !telemetry.contains("speed") || !telemetry.at("speed").is_number()) {
+		return false;
+	}
+	return true;
 }
 
 bool JsonHelper::isValidAutonomyCommand(const json& command) {
-	return command.contains("action") && command.contains("stops") && command.contains("route");
+	if (!command.contains("action") || !command.contains("stops") || !command.contains("route")) {
+		return false;
+	}
+	if (!command.at("action").is_string() || !isValidAutonomyCommandString(command.at("action").get<std::string>())) {
+		return false;
+	}
+	if (!command.at("stops").is_array()) {
+		return false;
+	}
+	if (!command.at("route").is_string()) {
+		return false;
+	}
+	return true;
 }
 
 bool JsonHelper::isValidAutonomyError(const json& errorMessage) {
-	return errorMessage.contains("finishedStops");
+	return errorMessage.contains("finishedStops") && errorMessage.at("finishedStops").is_array();
 }
 
 }
