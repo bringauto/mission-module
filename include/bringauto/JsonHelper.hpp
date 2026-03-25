@@ -9,10 +9,13 @@
 
 namespace bringauto {
 
-using json = nlohmann::ordered_json;
-
 /**
  * @brief Utility class for converting between buffers, JSON objects, and mission module enums
+ *
+ * Represents a collection of static conversion and validation utilities tied to the
+ * mission module's JSON message format. Its purpose is to centralise all JSON serialisation,
+ * deserialisation, and structural validation so that the rest of the module does not
+ * depend directly on the nlohmann::json API.
  */
 class JsonHelper {
 public:
@@ -22,7 +25,7 @@ public:
      * @param buffer Input buffer containing a JSON string
      * @return OK on success, NOT_OK if parsing fails
      */
-    static int bufferToJson(json& json, const buffer& buffer);
+    static int bufferToJson(nlohmann::ordered_json& json, const buffer& buffer);
 
     /**
      * @brief Serializes a JSON object into a buffer
@@ -30,7 +33,7 @@ public:
      * @param json Input JSON object
      * @return OK on success, NOT_OK if allocation fails
      */
-    static int jsonToBuffer(buffer* buffer, const json& json);
+    static int jsonToBuffer(buffer* buffer, const nlohmann::ordered_json& json);
 
     /**
      * @brief Converts a string representation of autonomy state to the corresponding enum value
@@ -58,21 +61,21 @@ public:
      * @param status JSON object to validate
      * @return true if all required fields are present
      */
-    static bool isValidAutonomyStatus(const json& status);
+    static bool isValidAutonomyStatus(const nlohmann::ordered_json& status);
 
     /**
      * @brief Checks whether a JSON object contains all required fields for an AutonomyCommand message
      * @param command JSON object to validate
      * @return true if all required fields are present
      */
-    static bool isValidAutonomyCommand(const json& command);
+    static bool isValidAutonomyCommand(const nlohmann::ordered_json& command);
 
     /**
      * @brief Checks whether a JSON object contains all required fields for an AutonomyError message
      * @param errorMessage JSON object to validate
      * @return true if all required fields are present
      */
-    static bool isValidAutonomyError(const json& errorMessage);
+    static bool isValidAutonomyError(const nlohmann::ordered_json& errorMessage);
 };
 
 }
