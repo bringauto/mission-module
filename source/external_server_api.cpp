@@ -46,10 +46,10 @@ void *init(const config config_data) {
     const std::regex url_regex(R"(^(http|https)://([\w-]+\.)?+[\w-]+(:[0-9]+)?(/[\w-]*)?+$)");
 
     const std::map<std::string, StringConfigEntry, std::less<>> string_config_keys {
-        { "api_url",      { &api_url,      [&](const std::string& v) { return std::regex_match(v, url_regex); } } },
-        { "api_key",      { &api_key,      [](const std::string& v)  { return !v.empty(); } } },
-        { "company_name", { &company_name, [&](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
-        { "car_name",     { &car_name,     [&](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
+        { "api_url",      { &api_url,      [&url_regex](const std::string& v)          { return std::regex_match(v, url_regex); } } },
+        { "api_key",      { &api_key,      [](const std::string& v)                    { return !v.empty(); } } },
+        { "company_name", { &company_name, [&alphanumeric_regex](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
+        { "car_name",     { &car_name,     [&alphanumeric_regex](const std::string& v) { return !v.empty() && std::regex_match(v, alphanumeric_regex); } } },
     };
 
     const std::map<std::string, int*, std::less<>> int_config_keys {
