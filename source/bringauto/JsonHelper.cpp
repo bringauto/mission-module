@@ -8,11 +8,11 @@ namespace bringauto {
 using json = nlohmann::ordered_json;
 using namespace bringauto::modules::mission_module;
 
-int JsonHelper::bufferToJson(json& json, const buffer& buffer) {
+int JsonHelper::bufferToJson(json& out_json, const buffer& buffer) {
     const auto buffer_data = static_cast<char*> (buffer.data);
     try {
-        json = json::parse(buffer_data, buffer_data + buffer.size_in_bytes);
-    } catch (json::parse_error &) {
+        out_json = json::parse(buffer_data, buffer_data + buffer.size_in_bytes);
+    } catch (const json::parse_error &) {
         return NOT_OK;
     }
     return OK;
@@ -54,7 +54,16 @@ std::string JsonHelper::autonomyActionToString(const AutonomyCommand action) {
 }
 
 bool JsonHelper::isValidAutonomyStatus(const json& status) {
-	return status.contains("state") && status.contains("telemetry") && status.contains("nextStop");
+	if (!status.contains("state") || !status.contains("telemetry") || !status.contains("nextStop")) {
+		return false;
+	}
+	const auto& state = status.at("state");
+	if (!state.is_string()) {
+		return false;
+	}
+	const std::string_view state_str = state.get<std::string>();
+	return state_str == "IDLE" || state_str == "DRIVE" || state_str == "IN_STOP" ||
+	       state_str == "OBSTACLE" || state_str == "ERROR";
 }
 
 bool JsonHelper::isValidAutonomyCommand(const json& command) {
