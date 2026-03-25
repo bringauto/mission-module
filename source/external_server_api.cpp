@@ -10,6 +10,7 @@
  
 #include <vector>
 #include <string_view>
+#include <memory>
 #include <cstring>
 #include <regex>
 #include <map>
@@ -90,20 +91,20 @@ void *init(const config config_data) {
         .retryRequestsDelayMs = std::chrono::milliseconds(retry_requests_delay_ms)
     };
 
-    auto *context = new bamm::Context {};
+    auto context = std::make_unique<bamm::Context>();
     context->fleet_api_client = std::make_shared<bringauto::fleet_protocol::http_client::FleetApiClient>(
         fleet_api_config, request_frequency_guard_config
     );
 
     context->last_command_timestamp = 0;
-    return context;
+    return context.release();
 }
 
 int destroy(void **context) {
     if(*context == nullptr){
         return NOT_OK;
     }
-    delete static_cast<bamm::Context*>(*context);
+    std::unique_ptr<bamm::Context>(static_cast<bamm::Context*>(*context));
     *context = nullptr;
     return OK;
 }
