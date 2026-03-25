@@ -21,11 +21,11 @@ class JsonHelper {
 public:
     /**
      * @brief Parses a buffer into a JSON object
-     * @param json Output JSON object
+     * @param out_json Output JSON object
      * @param buffer Input buffer containing a JSON string
      * @return OK on success, NOT_OK if parsing fails
      */
-    static int bufferToJson(nlohmann::ordered_json& json, const buffer& buffer);
+    static int bufferToJson(nlohmann::ordered_json& out_json, const buffer& buffer);
 
     /**
      * @brief Serializes a JSON object into a buffer

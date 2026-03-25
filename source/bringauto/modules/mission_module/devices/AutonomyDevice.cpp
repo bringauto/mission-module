@@ -15,6 +15,9 @@ using json = nlohmann::ordered_json;
 std::map<unsigned int, std::chrono::milliseconds> AutonomyDevice::last_sent_status_timestamps_ {};
 
 int AutonomyDevice::send_status_condition(const struct buffer current_status, const struct buffer new_status, unsigned int device_type) {
+	if(current_status.data == nullptr || current_status.size_in_bytes == 0) {
+		return OK;
+	}
 	json current_status_json {};
 	json new_status_json {};
 	if (JsonHelper::bufferToJson(current_status_json, current_status) != OK ||
@@ -43,16 +46,20 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 	json current_status_json {};
 	json new_status_json {};
 	json current_command_json {};
-	if (JsonHelper::bufferToJson(current_status_json, current_status) != OK ||
-		JsonHelper::bufferToJson(new_status_json, new_status) != OK ||
+	if (JsonHelper::bufferToJson(new_status_json, new_status) != OK ||
 		JsonHelper::bufferToJson(current_command_json, current_command) != OK) {
+		return NOT_OK;
+	}
+	const bool has_current_status = current_status.data != nullptr && current_status.size_in_bytes > 0;
+	if (has_current_status && JsonHelper::bufferToJson(current_status_json, current_status) != OK) {
 		return NOT_OK;
 	}
 
 	if (!current_command_json.at("stops").empty() &&
 		JsonHelper::stringToAutonomyState(std::string(new_status_json.at("state"))) ==
 		AutonomyState::IN_STOP &&
-		(JsonHelper::stringToAutonomyState(std::string(current_status_json.at("state"))) ==
+		(!has_current_status ||
+		JsonHelper::stringToAutonomyState(std::string(current_status_json.at("state"))) ==
 		AutonomyState::DRIVE ||
 		new_status_json.at("nextStop") == current_command_json.at("stops")[0])) {
 		current_command_json.at("stops").erase(current_command_json.at("stops").begin());
@@ -73,8 +80,12 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 									const struct buffer status) {
 	json status_json {};
 	json error_json {};
-	if (JsonHelper::bufferToJson(status_json, status) != OK ||
-		JsonHelper::bufferToJson(error_json, current_error_message) != OK) {
+	if (JsonHelper::bufferToJson(status_json, status) != OK) {
+		return NOT_OK;
+	}
+	if (current_error_message.data == nullptr || current_error_message.size_in_bytes == 0) {
+		error_json["finishedStops"] = json::array();
+	} else if (JsonHelper::bufferToJson(error_json, current_error_message) != OK) {
 		return NOT_OK;
 	}
 
