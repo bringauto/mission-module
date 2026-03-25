@@ -6,7 +6,6 @@ BA_PACKAGE_LIBRARY(async-function-execution          v1.0.0)
 BA_PACKAGE_LIBRARY(aeron                             v1.48.6)
 BA_PACKAGE_LIBRARY(zlib                              v1.2.11)
 BA_PACKAGE_LIBRARY(nlohmann-json                     v3.10.5 NO_DEBUG ON)
-BA_PACKAGE_LIBRARY(protobuf                          v4.21.12)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
     BA_PACKAGE_LIBRARY(fleet-http-client-shared v2.0.1)
