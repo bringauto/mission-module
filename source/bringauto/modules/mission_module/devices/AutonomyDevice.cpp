@@ -26,7 +26,7 @@ int AutonomyDevice::send_status_condition(const struct buffer current_status, co
 	}
 
 	if (current_status_json.at("state") != new_status_json.at("state") ||
-		current_status_json.at("nextStop") != new_status_json.at("nextStop")) {
+		nlohmann::json(current_status_json.at("nextStop")) != nlohmann::json(new_status_json.at("nextStop"))) {
 		return OK;
 	}
 
@@ -61,7 +61,7 @@ int AutonomyDevice::generate_command(struct buffer *generated_command, const str
 		(!has_current_status ||
 		JsonHelper::stringToAutonomyState(std::string(current_status_json.at("state"))) ==
 		AutonomyState::DRIVE ||
-		new_status_json.at("nextStop") == current_command_json.at("stops")[0])) {
+		nlohmann::json(new_status_json.at("nextStop")) == nlohmann::json(current_command_json.at("stops")[0]))) {
 		current_command_json.at("stops").erase(current_command_json.at("stops").begin());
 	}
 	return JsonHelper::jsonToBuffer(generated_command, current_command_json);
@@ -91,7 +91,7 @@ int AutonomyDevice::aggregate_error(struct buffer *error_message, const struct b
 
 	if (status_json.at("state") == JsonHelper::autonomyStateToString(AutonomyState::IN_STOP)) {
 		if (!error_json.at("finishedStops").empty()) {
-			if (error_json.at("finishedStops")[error_json.at("finishedStops").size() - 1] != status_json.at("nextStop")) {
+			if (nlohmann::json(error_json.at("finishedStops")[error_json.at("finishedStops").size() - 1]) != nlohmann::json(status_json.at("nextStop"))) {
 				error_json.at("finishedStops").push_back(status_json.at("nextStop"));
 			}
 		} else {

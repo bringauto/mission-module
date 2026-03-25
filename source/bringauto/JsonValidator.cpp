@@ -19,7 +19,7 @@ int JsonValidator::validateAutonomyStatus(const std::string &status) {
         if (!JsonHelper::isValidAutonomyStateString(json.at("state").get<std::string>())) {
             return NOT_OK;
         }
-        if (!json.at("telemetry").is_object() || !json.at("telemetry").contains("speed")) {
+        if (!json.at("telemetry").is_object() || !json.at("telemetry").contains("speed") || !json.at("telemetry").at("speed").is_number()) {
             return NOT_OK;
         }
     } catch (const nlohmann::json::exception &) {

@@ -38,7 +38,7 @@ public:
     /**
      * @brief Converts a string representation of autonomy state to the corresponding enum value
      * @param state String state value (e.g. "DRIVE", "IN_STOP")
-     * @return Corresponding AutonomyState enum value, ERROR if unrecognized
+     * @return Corresponding AutonomyState enum value, UNKNOWN if unrecognized
      */
     static modules::mission_module::AutonomyState stringToAutonomyState(std::string_view state);
 
