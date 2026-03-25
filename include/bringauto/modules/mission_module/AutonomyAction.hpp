@@ -1,0 +1,15 @@
+#pragma once
+
+
+namespace bringauto::modules::mission_module {
+
+/**
+ * @brief Represents the action to be performed by the autonomy device
+ */
+enum class AutonomyAction {
+    NO_ACTION,
+    STOP,
+    START
+};
+
+}

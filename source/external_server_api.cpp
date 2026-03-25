@@ -2,7 +2,7 @@
 #include <bringauto/modules/mission_module/Context.hpp>
 #include <bringauto/modules/mission_module/MissionModule.hpp>
 #include <bringauto/modules/mission_module/devices/AutonomyDevice.hpp>
-#include <bringauto/protobuf/ProtobufHelper.hpp>
+#include <bringauto/JsonValidator.hpp>
 #include <bringauto/fleet_protocol/cxx/DeviceID.hpp>
 #include <bringauto/fleet_protocol/cxx/KeyValueConfig.hpp>
 #include <bringauto/fleet_protocol/cxx/StringAsBuffer.hpp>
@@ -119,7 +119,7 @@ int forward_status(const buffer device_status, const device_identification devic
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         const bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
         const auto device_status_str = std::string(device_status_bas.getStringView());
-        if (bringauto::protobuf::ProtobufHelper::validateAutonomyStatus(device_status_str) != OK) {
+        if (bringauto::JsonValidator::validateAutonomyStatus(device_status_str) != OK) {
             return NOT_OK;
         }
 
@@ -156,7 +156,7 @@ int forward_error_message(const buffer error_msg, const device_identification de
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         const bringauto::fleet_protocol::cxx::BufferAsString error_msg_bas(&error_msg);
         const auto error_msg_str = std::string(error_msg_bas.getStringView());
-        if (bringauto::protobuf::ProtobufHelper::validateAutonomyError(error_msg_str) != OK) {
+        if (bringauto::JsonValidator::validateAutonomyError(error_msg_str) != OK) {
             return NOT_OK;
         }
 
@@ -269,7 +269,7 @@ int wait_for_command(int timeout_time_in_ms, void *context) {
 
         if(parse_commands) {
             std::string command_str = command->getPayload()->getData()->getJson().serialize();
-            if (bringauto::protobuf::ProtobufHelper::validateAutonomyCommand(command_str) != OK) {
+            if (bringauto::JsonValidator::validateAutonomyCommand(command_str) != OK) {
                 return NOT_OK;
             }
 
