@@ -44,7 +44,7 @@ void *init(const config config_data) {
     int retry_requests_delay_ms {};
 
     const std::regex alphanumeric_regex("^[a-z0-9_]*$");
-    const std::regex url_regex(R"(^(http|https)://([\w-]+\.)?[\w-]+(:[0-9]+)?(/[\w-]*)?$)");
+    const std::regex url_regex(R"(^(http|https)://([\w-]+\.)*[\w-]+(:[0-9]+)?(/[\w-]+)*/?$)");
 
     const std::map<std::string, StringConfigEntry, std::less<>> string_config_keys {
         { "api_url",      { &api_url,      [&url_regex](const std::string& v)          { return std::regex_match(v, url_regex); } } },
