@@ -16,6 +16,7 @@
 #include <map>
 #include <functional>
 #include <optional>
+#include <iostream>
 
 
 namespace bamm = bringauto::modules::mission_module;
@@ -119,12 +120,15 @@ int forward_status(const buffer device_status, const device_identification devic
     if(device.device_type == bamm::AUTONOMY_DEVICE_TYPE) {
         const bringauto::fleet_protocol::cxx::BufferAsString device_status_bas(&device_status);
         const auto device_status_str = std::string(device_status_bas.getStringView());
+        const bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
+        const bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
+
         if (bringauto::JsonValidator::validateAutonomyStatus(device_status_str) != OK) {
+            std::cerr << "[mission-module] forward_status JSON validation failed for "
+                      << device_name.getStringView() << ": " << device_status_str << "\n";
             return NOT_OK;
         }
 
-        const bringauto::fleet_protocol::cxx::BufferAsString device_role(&device.device_role);
-        const bringauto::fleet_protocol::cxx::BufferAsString device_name(&device.device_name);
         con->fleet_api_client->setDeviceIdentification(
             bringauto::fleet_protocol::cxx::DeviceID(
                 device.module,
@@ -137,12 +141,15 @@ int forward_status(const buffer device_status, const device_identification devic
 
         auto rc = con->fleet_api_client->sendStatus(device_status_str);
         if(rc != bringauto::fleet_protocol::http_client::FleetApiClient::ReturnCode::OK) {
+            std::cerr << "[mission-module] forward_status sendStatus returned "
+                      << static_cast<int>(rc) << " for " << device_name.getStringView() << "\n";
             return NOT_OK;
         }
 
         return OK;
     }
 
+    std::cerr << "[mission-module] forward_status unsupported device type: " << device.device_type << "\n";
     return NOT_OK;
 }
 
