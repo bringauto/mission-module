@@ -8,7 +8,7 @@ BA_PACKAGE_LIBRARY(zlib                              v1.2.11)
 BA_PACKAGE_LIBRARY(nlohmann-json                     v3.10.5 NO_DEBUG ON)
 
 IF (FLEET_PROTOCOL_BUILD_EXTERNAL_SERVER)
-    BA_PACKAGE_LIBRARY(fleet-http-client-shared v2.0.1)
+    BA_PACKAGE_LIBRARY(fleet-http-client-shared v2.0.2)
     BA_PACKAGE_LIBRARY(boost                    v1.86.0)
     BA_PACKAGE_LIBRARY(cpprestsdk               v2.10.20)
 ENDIF ()
