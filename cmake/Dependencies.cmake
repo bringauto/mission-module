@@ -1,6 +1,6 @@
 SET(CMAKE_FIND_USE_CMAKE_SYSTEM_PATH FALSE)
 
-BA_PACKAGE_LIBRARY(fleet-protocol-interface          v2.0.0 NO_DEBUG ON)
+BA_PACKAGE_LIBRARY(fleet-protocol-interface          v2.1.0 NO_DEBUG ON)
 BA_PACKAGE_LIBRARY(fleet-protocol-cpp                v1.2.0)
 BA_PACKAGE_LIBRARY(async-function-execution          v1.0.0)
 BA_PACKAGE_LIBRARY(aeron                             v1.48.6)
